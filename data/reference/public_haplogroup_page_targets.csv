@@ -1,0 +1,28 @@
+lineage_key,group,yfull_name,ftdna_name,ashkenazi_pct,note
+K1a1b1a,founder,K1a1b1a,K1a1b1a,20.70,major Ashkenazi founder; Brook/Penninx 2019
+K1a9,founder,K1a9,K1a9,6.10,major Ashkenazi founder; Brook/Penninx 2019
+K2a2a,founder,K2a2a,K2a2a,5.30,major Ashkenazi founder; Brook/Penninx 2019 (FTDNA K2a2a1)
+N1b2,founder,N1b2,N1b1b1,6.08,historical N1b2 = N1b1b1 on FTDNA/Brook
+V7a2c1b,negative_control,V7a2c1b,V7a12a1,2.40,European control; Brook/Penninx 2019
+U5a1f1a3,negative_control,U5a1f1a3,U5a1f1a3,0.37,European U5 control; Brook/Penninx 2019
+L2a1l2a,non_european,L2a1l2a,L2a1l2a,2.20,deep African Ashkenazi lineage; Brook/Penninx 2019
+M1a1b1c,non_european,M1a1b1c,M1a1b1c,0.31,North African/Near Eastern M1 lineage
+M33c3,non_european,M33c3,M33c9b,0.34,FTDNA/Brook alias M33c9b
+N9a3a1b1,non_european,N9a3a1b1,N9a3c,0.52,FTDNA/Brook alias N9a3c
+A-a1b3a1,non_european,A-a1b3a1,,0.06,FTDNA A4i1; YFull-only public context
+HV1b2,major_panel,HV1b2,HV1b2a,3.99,Costa/Grossman Near Eastern-associated lineage
+R0a,major_panel,R0a,R0a,2.52,combined R0a4a+R0a2m Brook frequencies
+U7a5,major_panel,U7a5,U7a5,1.55,Near Eastern/West Asian panel row
+U1b1a1,major_panel,U1b1a1,U1b1,0.80,FTDNA public parent U1b1
+H7,major_panel,H7,H7e,1.90,European H control
+H6a1a1a,major_panel,H6a1a1a,H6a1a1a,0.57,ambiguous H6 test case
+J1c7a,major_panel,J1c7a,J1c7a15,2.30,European J1c control
+T2,major_panel,T2,T2,4.8,Costa 2013 S9 European-source Ashkenazi T lineage
+W,major_panel,W,W,1.6,Costa 2013 S9 European-source Ashkenazi W lineage
+I,major_panel,I,I,1.3,Costa 2013 S9 European-source Ashkenazi I lineage
+U4,major_panel,U4,U4,1.0,Costa 2013 European-source U4 lineage
+H1,major_panel,H1,H1,3.0,Costa 2013 S9 European-source H subclade
+H3,major_panel,H3,H3,1.5,Costa 2013 S9 European-source H subclade
+H5,major_panel,H5,H5,1.5,Costa 2013 S9 European-source H subclade
+HV1a,major_panel,HV1a,HV1a,1.5,Costa 2013 S9 Near Eastern-source HV1 lineage
+K1a4a,major_panel,K1a4a,K1a4a,0.20,Brook 2022 sixth K founder branch; ambiguous convert vs Levantine

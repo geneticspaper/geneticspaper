@@ -1,0 +1,14 @@
+Target,Reference/Outgroup (Right) populations,Source (Left) populations,p-value,C1,C2,se1,se2,C1-(2*se1),C2-(2*se2)
+ROQ,Mbuti.DG;Russia_UstIshim_IUP_snpAD.DG;Morocco_Iberomaurusian;Italy_Epigravettian_alt.AG.BY.AA,IP_Medieval_5-14,1.9792340300000001E-16,1,0,0,0,0,0
+ROQ,Mbuti.DG;Russia_UstIshim_IUP_snpAD.DG;Morocco_Iberomaurusian;Italy_Epigravettian_alt.AG.BY.AA,IP_Islamic_8-14,2.7347427799999998E-4,1,0,0,0,0,0
+ROQ,Mbuti.DG;Russia_UstIshim_IUP_snpAD.DG;Morocco_Iberomaurusian;Italy_Epigravettian_alt.AG.BY.AA,Nazari_14-16,1.0540940800000001E-2,1,0,0,0,0,0
+ROQ,Mbuti.DG;Russia_UstIshim_IUP_snpAD.DG;Morocco_Iberomaurusian;Italy_Epigravettian_alt.AG.BY.AA,Germany_Jewish_13-15_EU,1.21676368E-5,1,0,0,0,0,0
+ROQ,Mbuti.DG;Russia_UstIshim_IUP_snpAD.DG;Morocco_Iberomaurusian;Italy_Epigravettian_alt.AG.BY.AA,Germany_Jewish_13-15_ME,9.79043156E-2,1,0,0,0,0,0
+ROQ,Mbuti.DG;Russia_UstIshim_IUP_snpAD.DG;Morocco_Iberomaurusian;Italy_Epigravettian_alt.AG.BY.AA,England_Jewish_11-13,1.07227731E-69,1,0,0,0,0,0
+ROQ,Mbuti.DG;Russia_UstIshim_IUP_snpAD.DG;Morocco_Iberomaurusian;Italy_Epigravettian_alt.AG.BY.AA,Israel_MLBA,5.1850799200000002E-4,1,0,0,0,0,0
+ROQ,Mbuti.DG;Russia_UstIshim_IUP_snpAD.DG;Morocco_Iberomaurusian;Italy_Epigravettian_alt.AG.BY.AA,Jew_Turkish.HO,8.6330977799999997E-4,1,0,0,0,0,0
+ROQ,Mbuti.DG;Russia_UstIshim_IUP_snpAD.DG;Morocco_Iberomaurusian;Italy_Epigravettian_alt.AG.BY.AA,Jew_Ashkenazi.HO,2.4312332899999998E-3,1,0,0,0,0,0
+ROQ,Mbuti.DG;Russia_UstIshim_IUP_snpAD.DG;Morocco_Iberomaurusian;Italy_Epigravettian_alt.AG.BY.AA,Jew_Moroccan.HO,1.3274615199999999E-5,1,0,0,0,0,0
+ROQ,Mbuti.DG;Russia_UstIshim_IUP_snpAD.DG;Morocco_Iberomaurusian;Italy_Epigravettian_alt.AG.BY.AA,Israel_MLBA;IP_Medieval_5-14,0.15814300000000001,0.68600000000000005,0.314,7.9000000000000001E-2,7.9000000000000001E-2,0.52800000000000002,0.156
+ROQ,Mbuti.DG;Russia_UstIshim_IUP_snpAD.DG;Morocco_Iberomaurusian;Italy_Epigravettian_alt.AG.BY.AA,Israel_MLBA;IP_Islamic_8-14,9.9306700000000008E-3,0.501,0.499,0.17199999999999999,0.17199999999999999,0.157,0.155
+ROQ,Mbuti.DG;Russia_UstIshim_IUP_snpAD.DG;Morocco_Iberomaurusian;Italy_Epigravettian_alt.AG.BY.AA,Israel_MLBA;Nazari_14-16,5.2882500000000004E-3,0.255,0.745,0.438,0.438,-0.621,-0.13100000000000001

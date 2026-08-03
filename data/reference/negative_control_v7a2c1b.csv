@@ -1,0 +1,12 @@
+branch,id,source,country,region_code,population,note
+V7a2c1b,SUMMARY,Penninx2019/Brook2022,,,Ashkenazi,"established Ashkenazi maternal cluster ~2.40% frequency; defining mutation A12753G; FTDNA=V7a2c1b, 23andMe=V7a"
+V7a2c1b,TMRCA,YFull/FTDNA-Discover,,,,"age uncertain: YFull ~100 ya for tight subclade; FTDNA Discover (branch V7a12a1) ~350 CE (~1675 ya). European origin does not depend on age."
+V7a2c1b,YF083232,YFull,Lithuania,LT-VL,Ashkenazi (Yiddish),Vilnius-area Yiddish; submitter-reported
+V7a2c1b,PQ337267,GenBank,Ukraine,,Ashkenazi,Berezna Chernihiv Oblast; submitter-reported
+V7a2c1b,KF162774.1,GenBank,Denmark,,non-Jewish (general population),Danish population mtgenome study (Li 2014)
+V7a2c1b,JQ703830.1,GenBank,Russia,RUS,non-Jewish (general population),general-population mtgenome
+V7a2c1b,YF087467,YFull,Germany,DE-BE,unknown (non-Jewish assumed),Berlin
+V7a2c1b,YF100337,YFull,Belarus,BY-HO,non-Jewish (Russian-speaking),Homel region
+V7a2c1b1,OR803751.1,GenBank,Poland,,Ashkenazi,Dynow (Galicia); submitter-reported
+V7a2c1b1,YF108999,YFull,Lithuania,LT-PN,Ashkenazi (Yiddish),Panevezys-area Yiddish; submitter-reported
+V7a2c1b1,JQ704752.1,GenBank,,,unknown,GenBank mtgenome under V7a2c1b1

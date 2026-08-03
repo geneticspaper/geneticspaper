@@ -1,0 +1,9 @@
+quantity,value,note
+sample_size,565,Behar et al. 2006 Ashkenazi mtDNA sample (ref [25]/[15] in Livni-Skorecki)
+n_lineages,125,distinct mtDNA lineages detected
+n_singletons,71,lineages seen exactly once (candidate absorbed/host lineages)
+n_multi,54,lineages seen in multiple copies (candidate founder lineages)
+n_doubletons,14,lineages seen exactly twice (histogram bin 2)
+n_triplets,11,lineages seen exactly three times (histogram bin 3)
+max_copies,30,largest single lineage count (one major lineage in 30 copies)
+n_major,4,"major founder lineages (K1a1b1a, K1a9, K2a2a, N1b2), >4.3% each"

@@ -1,0 +1,143 @@
+"root","region","n","distinct_lineages","pool_size"
+"K1a","Europe",1,1,402
+"K1a","Europe",4,3.945,402
+"K1a","Europe",6,5.85,402
+"K1a","Europe",9,8.67,402
+"K1a","Europe",12,11.35,402
+"K1a","Europe",14,13.225,402
+"K1a","Europe",17,15.84,402
+"K1a","Europe",19,17.39,402
+"K1a","Europe",22,19.95,402
+"K1a","Europe",25,22.36,402
+"K1a","Europe",27,23.99,402
+"K1a","Europe",30,26.17,402
+"K1a","Europe",32,27.78,402
+"K1a","Europe",35,30.075,402
+"K1a","Europe",38,32.41,402
+"K1a","Europe",40,34.05,402
+"K1a","Europe",43,36.26,402
+"K1a","Europe",46,38.17,402
+"K1a","Europe",48,39.63,402
+"K1a","Europe",51,41.42,402
+"K1a","Europe",54,43.715,402
+"K1a","Europe",56,45.41,402
+"K1a","Europe",59,46.96,402
+"K1a","Europe",61,48.165,402
+"K1a","Europe",64,50.345,402
+"K1a","Near East",1,1,64
+"K1a","Near East",4,3.96,64
+"K1a","Near East",6,5.91,64
+"K1a","Near East",9,8.835,64
+"K1a","Near East",12,11.63,64
+"K1a","Near East",14,13.505,64
+"K1a","Near East",17,16.225,64
+"K1a","Near East",19,18.085,64
+"K1a","Near East",22,20.795,64
+"K1a","Near East",25,23.585,64
+"K1a","Near East",27,25.11,64
+"K1a","Near East",30,27.69,64
+"K1a","Near East",32,29.34,64
+"K1a","Near East",35,31.86,64
+"K1a","Near East",38,34.42,64
+"K1a","Near East",40,36.015,64
+"K1a","Near East",43,38.265,64
+"K1a","Near East",46,40.735,64
+"K1a","Near East",48,42.27,64
+"K1a","Near East",51,44.465,64
+"K1a","Near East",54,46.755,64
+"K1a","Near East",56,48.225,64
+"K1a","Near East",59,50.485,64
+"K1a","Near East",61,51.835,64
+"K1a","Near East",64,54,64
+"K2a","Europe",1,1,69
+"K2a","Europe",2,1.945,69
+"K2a","Europe",3,2.86,69
+"K2a","Europe",4,3.795,69
+"K2a","Europe",5,4.51,69
+"K2a","Europe",6,5.54,69
+"K2a","Europe",7,6.315,69
+"K2a","Europe",8,7.04,69
+"K2a","Europe",9,7.98,69
+"K2a","Europe",10,8.57,69
+"K2a","Europe",11,9.34,69
+"K2a","Europe",12,9.815,69
+"K2a","Europe",13,10.475,69
+"K2a","Europe",14,11.245,69
+"K2a","Europe",15,11.925,69
+"K2a","Europe",16,12.56,69
+"K2a","Europe",17,13.055,69
+"K2a","Europe",18,13.67,69
+"K2a","Europe",19,14.215,69
+"K2a","Europe",20,14.85,69
+"K2a","Europe",21,15.145,69
+"K2a","Near East",1,1,21
+"K2a","Near East",2,1.755,21
+"K2a","Near East",3,2.31,21
+"K2a","Near East",4,2.72,21
+"K2a","Near East",5,3.04,21
+"K2a","Near East",6,3.37,21
+"K2a","Near East",7,3.645,21
+"K2a","Near East",8,3.86,21
+"K2a","Near East",9,4.11,21
+"K2a","Near East",10,4.435,21
+"K2a","Near East",11,4.56,21
+"K2a","Near East",12,4.655,21
+"K2a","Near East",13,5.125,21
+"K2a","Near East",14,5.36,21
+"K2a","Near East",15,5.5,21
+"K2a","Near East",16,5.805,21
+"K2a","Near East",17,5.985,21
+"K2a","Near East",18,6.325,21
+"K2a","Near East",19,6.565,21
+"K2a","Near East",20,6.785,21
+"K2a","Near East",21,7,21
+"N1b","Europe",1,1,32
+"N1b","Europe",2,1.98,32
+"N1b","Europe",3,2.94,32
+"N1b","Europe",4,3.93,32
+"N1b","Europe",6,5.79,32
+"N1b","Europe",7,6.74,32
+"N1b","Europe",8,7.7,32
+"N1b","Europe",9,8.58,32
+"N1b","Europe",10,9.475,32
+"N1b","Europe",12,11.21,32
+"N1b","Europe",13,12.175,32
+"N1b","Europe",14,12.965,32
+"N1b","Europe",15,13.835,32
+"N1b","Europe",16,14.645,32
+"N1b","Europe",17,15.64,32
+"N1b","Europe",18,16.39,32
+"N1b","Europe",20,18.17,32
+"N1b","Europe",21,18.965,32
+"N1b","Europe",22,19.61,32
+"N1b","Europe",23,20.545,32
+"N1b","Europe",24,21.41,32
+"N1b","Europe",26,23.08,32
+"N1b","Europe",27,23.83,32
+"N1b","Europe",28,24.645,32
+"N1b","Europe",29,25.505,32
+"N1b","Near East",1,1,29
+"N1b","Near East",2,1.965,29
+"N1b","Near East",3,2.965,29
+"N1b","Near East",4,3.89,29
+"N1b","Near East",6,5.665,29
+"N1b","Near East",7,6.6,29
+"N1b","Near East",8,7.41,29
+"N1b","Near East",9,8.35,29
+"N1b","Near East",10,9.15,29
+"N1b","Near East",12,10.785,29
+"N1b","Near East",13,11.5,29
+"N1b","Near East",14,12.275,29
+"N1b","Near East",15,13.105,29
+"N1b","Near East",16,13.76,29
+"N1b","Near East",17,14.575,29
+"N1b","Near East",18,15.265,29
+"N1b","Near East",20,16.47,29
+"N1b","Near East",21,17.265,29
+"N1b","Near East",22,17.865,29
+"N1b","Near East",23,18.435,29
+"N1b","Near East",24,19.045,29
+"N1b","Near East",26,20.315,29
+"N1b","Near East",27,20.84,29
+"N1b","Near East",28,21.405,29
+"N1b","Near East",29,22,29

@@ -1,0 +1,183 @@
+---
+title: "Are the Major Ashkenazi mtDNA Founders Middle Eastern / Levantine?"
+subtitle: "A model after Livni & Skorecki (2025), integrated with Mitotree (Maier et al. 2026)"
+format:
+  html:
+    toc: true
+    code-fold: true
+    embed-resources: true
+execute:
+  warning: false
+  message: false
+---
+
+```{r setup}
+here_root <- normalizePath(file.path(dirname(knitr::current_input()), ".."))
+source(file.path(here_root, "R", "utils.R"))
+tab <- function(name) read.csv(file.path(TAB_DIR, name))
+figp <- function(f) file.path(FIG_DIR, f)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This document tests two hypotheses for the four major Ashkenazi maternal founders
+**K1a1b1a, K1a9, K2a2a, N1b2**:
+
+- **[H1] European origin** (Costa et al. 2013): assimilated prehistoric European women.
+- **[H2] Levantine origin** (Behar et al. 2006; Livni & Skorecki 2025): Near Eastern founders.
+
+It uses the Livni-Skorecki branching / founder-vs-host model framework and adds
+a phylogeographic + ancient-DNA analysis of an enriched, deduplicated
+Mitotree+GenBank dataset. Behar and Costa records are provenance flags within
+the dataset, not separate sample tables.
+
+> To regenerate every table and figure, run `Rscript run_all.R` from the project
+> root (after `python3 scripts/00_extract_data.py`). This document reads the
+> pre-computed outputs.
+
+## Data set
+
+```{r dataset}
+knitr::kable(tab("00_enriched_dedup_summary.csv"))
+```
+
+## Module A -- Branching-process (founder vs host) model
+
+Galton-Watson lineage extinction: after ~15 generations a founder leaves exactly
+one descendant with ~1% probability (Livni-Skorecki Table 1).
+
+```{r A-table1}
+knitr::kable(tab("A_table1_single_descendant.csv"))
+```
+
+The fast PGF/FFT implementation is checked against a slower direct-convolution
+implementation:
+
+```{r A-audit}
+knitr::kable(tab("A_branching_math_audit.csv"))
+```
+
+![Single-descendant probability](`r figp("A1_single_descendant.png")`)
+
+Founder lineages are seen in multiple copies; absorbed (convert) lineages appear
+as singletons.
+
+![Founder vs absorbed detectability](`r figp("A2_detection_curves.png")`)
+
+Empirical founder counts are computed from the enriched deduped dataset:
+
+```{r A-absorption}
+knitr::kable(tab("A_mitotree_founder_summary.csv")[, c(
+  "founder", "modern_count", "modern_frequency", "ancient_count",
+  "distinct_modern_haplogroups", "known_country_count"
+)])
+```
+
+Absorption rates are not estimated from this reference dataset because
+Mitotree/GenBank is not an unbiased Ashkenazi population sample:
+
+```{r A-note}
+knitr::kable(tab("A_model_identifiability_note.csv"))
+```
+
+![Founder counts](`r figp("A3_mitotree_founder_frequencies.png")`)
+
+The "Euro-Levantine" reconciliation is model-disfavored under the
+Livni-Skorecki scenario (probability < 0.4% for >=3 major founders), but this is
+a model sensitivity result rather than an empirical Mitotree measurement:
+
+![Euro-Levantine feasibility](`r figp("A6_euro_levantine.png")`)
+
+## Module B -- Phylogeography (ape + pegas)
+
+Parent clades retain a Near Eastern signal in modern samples with known country,
+but modern country is diaspora-biased and is not interpreted as origin:
+
+![Regional composition of parent clades](`r figp("B1_parentclade_region_props.png")`)
+
+The Costa et al. "solely European nesting" claim is not robust for K1a after
+sample-size control. K2a and N1b remain mixed, so this is not a blanket proof:
+
+![Rarefaction](`r figp("B6_rarefaction.png")`)
+
+![Nesting of K1a1b1a](`r figp("B2_nesting_K1a1b1a.png")`)
+
+Published non-Jewish rarity benchmark (not the analysis set):
+
+```{r B-table7}
+knitr::kable(read.csv(file.path(REFERENCE, "table7_nonjewish_freq.csv")))
+```
+
+![Non-Jewish rarity](`r figp("B7_nonjewish_rarity.png")`)
+
+![Founder haplotype network](`r figp("B8_founder_haplonet.png")`)
+
+## Module C -- Ancient DNA and diffusion (ape + adegenet)
+
+The oldest ancient K1a records in this enriched dataset are Near Eastern
+(Anatolia ~8750 BCE, Levant):
+
+```{r C-oldest}
+knitr::kable(head(tab("C_oldest_near_east.csv"), 8))
+```
+
+Ancient/historical founder-clade hits in the enriched deduped dataset:
+
+```{r C-footprint}
+knitr::kable(tab("A_mitotree_ancient_founders.csv")[, c(
+  "founder", "subject", "haplogroup", "country", "year", "study"
+)])
+```
+
+![Ancient timeline](`r figp("C1_ancient_timeline.png")`)
+
+Founders coalesce recently relative to their parent clades:
+
+```{r C-coal}
+knitr::kable(tab("C_coalescence_ages.csv"))
+```
+
+![Coalescence ages](`r figp("C2_coalescence_ages.png")`)
+
+Frequency-gradient argument: parent signatures peak in the Near East / Anatolia
+(Table 3), which is supportive context but not stand-alone proof:
+
+```{r C-table3}
+knitr::kable(read.csv(file.path(REFERENCE, "table3_parent_freq.csv")))
+```
+
+![Diffusion frequencies](`r figp("C3_diffusion_frequencies.png")`)
+
+![glPca of founder motifs](`r figp("C4_glpca_founders.png")`)
+
+## Conclusion
+
+The enriched deduped analysis **leans toward [H2]**, especially for
+K1a/K1a1b1a and K2a/K2a2a, but it should be read as weighted evidence rather
+than definitive proof. Founder clades are present in the enriched dataset, K1a's
+European nesting advantage weakens after sample-size control, published
+non-Jewish rarity remains a benchmark against simple European assimilation, and
+historical founder-clade hits are explicitly tabulated rather than inferred from
+Behar/Costa sample tables.
+
+## Limitations
+
+- Mitotree/GenBank is a cross-study reference set, not a random population
+  sample; singleton/doubleton absorption rates are therefore not estimated from it.
+- Modern `Country` is diaspora residence, not origin; it is not used as direct
+  evidence of origin.
+- The public Mitotree subset is a subset of the full ~330,000 samples.
+- Network / glPca use motifs reconstructed from Mitotree mutation strings.
+- Branching-model equations are retained as framework; empirical counts come
+  from the enriched deduped dataset.
+- Built to *test* H2 vs H1; not a substitute for peer-reviewed primary analysis.
+
+## External context
+
+Autosomal and ancient-DNA studies frame (but do not settle) the maternal
+question: Carmi et al. 2014 (severe late-medieval bottleneck, ~50/50 EU/ME
+autosomal ancestry), Waldman et al. 2022 (Erfurt medieval Ashkenazi carrying
+K1a1b1a/K1a9/N1b2; founder event pre-dating the 14th century), Xue et al. 2017
+(European gene flow predominantly Southern European, in ≥2 events around the
+founder bottleneck), Fernández et al. 2014 (deep Near Eastern Neolithic
+haplogroup K at ~43%), and Pallarés-Viña et al. 2026 (medieval Iberian Jewish
+K1a1b1a at Tàrrega).

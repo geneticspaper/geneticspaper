@@ -1,0 +1,18 @@
+Genetic code,Archaeological code,Grave,Sample used,Valid for shotgun?,Shotgun characteristics,,,,,Human DNA capture performed,Human DNA capture characteristics,,,,,Employed for genomic analyses?,Genetic sex,mtDNA haplogroup,Y chromosome haplogroup (ISOGG 2020),Y chromosome haplogroup (SNP based),Comments
+,,,,,5' C-to-T 1st base (%),SexDet Rate Chromosome X,SexDet Rate Chromosome Y,Rate chr.Y / (Rate chr. X + Rate chr. Y),Nº SNPs 1240k panel,,5' C-to-T 1st base (%),ContamMix (mean),ContamMix (2.5%),ContamMix (97.5%),Nº SNPs 1240k panel,,,,,,
+ROQ 1,FS 164 UE 1210,164,Tooth 17,YES,13.7,0.3,0.6,0.66666666666666674,223,YES,"15,2","0,9556799","0,9365225","0,9688773",277756,YES,Male,L2a1c+16129,J2a2a1~*,J-Y31564,
+ROQ 2,ROQ'07 FS166 UE 1206 x,166,Tooth 33,YES,7.8,0.5,0.4,0.44444444444444448,42188,YES,"8,6","0,9709162","0,95854","0,9804768",1047401,YES,Male,U4a2,E1b1b1a1a1c1b1a1a~,E-CTS9507,
+ROQ 3,FS164 UE 1204,164,Tooth 38,YES,9.6999999999999993,1.1000000000000001,0,0,19017,YES,"11,1","0,9841212","0,9674358","0,9935148",822170,YES,Female,J1c1f,-,-,
+ROQ 4,FS164 UE 1220 (7),164,Tooth 38,YES,7.3,0.5,0.5,0.5,37787,YES,"8,1","0,9906899","0,9821147","0,9960065",1089958,YES,Male,M1a1b1c,G1a1a1b2b,G-PH1944 (G-FT19393),
+ROQ 5,ROQ'07 FS164 UE 1222,164,Rib's fragment,YES,7.4,0.9,0,0,1376,YES,"7,4","0,9878823","0,9735365","0,9957224",410710,YES,Female,L2a1c+16129,-,-,
+ROQ 6,FS162 UE 1175,162,Tooth 74,NO,-,-,-,-,-,-,-,-,-,-,,-,-,-,-,-,Too low concentration of short DNA fragments in the extracted DNA
+ROQ 7,ROQ'07 FS164 UE 1218,164,Rib's fragment,YES,6.7,0.5,0.6,0.54545454545454541,797,YES,"6,6","0,9895662","0,9488629","0,9986307",338697,YES,Male,R0a4,E2a~*,E-Y231455,
+ROQ 8,ROQ'07 FS164 UE 1219,164,Rib's fragment,YES,4.3,1,0.2,0.16666666666666669,587,-,-,-,-,-,,NO,-,-,-,-,Excessively low damage
+ROQ 9,FS162 UE 1167,162,Left hammer and anvil,NO,-,-,-,-,-,-,-,-,-,-,,-,-,-,-,-,
+ROQ 10,FS162 UE 1165,162,Tooth 75,YES,12.4,0.9,0,0,332,YES,"9,7","0,9995003","0,9907043","0,9999126",57693,YES,Female,H1bo,-,-,
+ROQ 11,FS163 UE 1185,163,Tooth 74,YES,13.8,1.2,0,0,708,YES,"11,2","0,9988425","0,9834907","0,9997441",158279,YES,Female,H20a1a,-,-,
+ROQ 12,ROQ'07 FS164 UE 1213,164,Right anvil and rib fragment,YES,11.8,1.1000000000000001,0.1,8.3333333333333329E-2,79,YES,"7,4","0,98453","0,9444243","0,997688",78130,YES,Female,K1a1b1a,-,-,
+ROQ 13,FS54 UE 1053 (1),54,Tooth 36,YES,13.1,0.9,0,0,1331,YES,"13,5","0,9843615","0,9685783","0,9943879",564455,YES,Female,H1bo,-,-,
+ROQ 14,ROQ'07 FS161 UE 1187,161,Rib's fragment,NO,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,Too low concentration of short DNA fragments in the extracted DNA
+ROQ 15,ROQ'23 UF2 UE1009,Individual grave,Right petrous bone,YES,18,1,0,0,121312,NO,-,"0,9996444","0,9918806","0,999942",-,YES,Female,U5a2b,-,-,Human DNA capture considered unnecessary for the high numer of SNPs recovered form shotgun sequencing
+ROQ 16,ROQ'23 UF1 UE1006,Individual grave,Left petrous bone,NO,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,Too low concentration of short DNA fragments in the extracted DNA

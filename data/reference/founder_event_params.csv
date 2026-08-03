@@ -1,0 +1,4 @@
+symbol,description,min,max,selected
+m,Growth ratio per generation,1.075,1.2,1.075
+M0,Founder population size (families),52,300,150
+s0,Lineage extinction ratio,0.81,0.62,0.67
