@@ -7,6 +7,12 @@ This report tests two competing hypotheses for the four major Ashkenazi maternal
 
 It combines the Livni-Skorecki branching-process / founder-vs-host model framework with a phylogeographic and ancient-DNA analysis of a **deduplicated enriched dataset**: Mitotree S1 + GenBank E-utilities founder queries + Behar/Costa provenance flags, with duplicates removed by accession/sample.
 
+## Summary
+
+Four maternal founder lineages -- K1a1b1a, K1a9, K2a2a, and N1b2 -- account for roughly 40% of Ashkenazi Jewish mtDNA, but their geographic origin is disputed between a prehistoric European-assimilation model and a Near Eastern / Levantine-origin model. This report reimplements the Livni-Skorecki branching-process and founder-versus-host framework and combines it with phylogeographic rarefaction, non-Jewish rarity, ancient DNA, and a regularized origin synthesis over a deduplicated Mitotree/GenBank reference set.
+
+Five analyses favor a Near Eastern origin. The estimated host-lineage absorption rate places all four founders in the multi-copy founder tail rather than among absorbed singletons; the founders are rare among 27,651 non-Jews; Costa’s “solely European nesting” argument weakens after equal-sample-size rarefaction; the K and N parent macro-clades have deep Near Eastern ancient-DNA context and the founder clades occur in medieval Jewish individuals; and the ridge-logistic synthesis assigns every founder a probability above 0.5 for Near Eastern origin. Support is strongest for K2a2a (0.996) and the K1a founders (K1a1b1a 0.956; K1a9 0.946), and positive but more tentative for N1b2 (0.743). The result favors a Near Eastern origin for all four founders under these data, while recognizing that mtDNA alone cannot establish geographic origin with autosomal-level certainty.
+
 ## Data Set
 
 The analysis set is built from Mitotree S1, enriched with GenBank founder-query metadata, and deduplicated. Behar and Costa rows are not added as separate frequency tables; they are study/provenance flags on records already present in Mitotree/GenBank.
@@ -39,6 +45,14 @@ Each module tests a specific published claim:
 The inputs are data-based. Modern and ancient mtDNA records, country labels, tree topology, descendant sets and TMRCA values come from Mitotree/GenBank-derived tables. Published papers contribute explicit reference tables, frequencies, ancient samples or literature-coded classifications. Manually parameterized controls are labelled as calibration controls rather than independent discoveries; their job is to check that the same machinery can correctly place known European, Near Eastern and non-European cases.
 
 The framework is constrained to satisfy several requirements simultaneously: it must reproduce the Livni-Skorecki branching logic, keep the Behar and Costa benchmarks separate from the Mitotree reference set, control for the Costa sample-size confound, place European calibration lineages near parity, place Near Eastern and non-European calibration lineages high, and still score the four founders from their observed rarity, ancient context, and nesting. Because a single classifier must place both the calibration lineages and the founders correctly, the founder scores are not free parameters tuned to a target.
+
+### Computational Methods and Numerical Validation
+
+The pipeline represents Mitotree topology as a parent map and child adjacency list. Descendant sets are obtained by depth-first traversal and used consistently for founder counts, regional parent-clade counts, ancient-record extraction, rarefaction, and control panels. Deduplication by accession and sample key occurs before these analyses so records present through both Mitotree and GenBank enrichment are not counted twice.
+
+Finite-time Galton-Watson descendant distributions are calculated by composing offspring probability-generating functions. Their coefficients are recovered by evaluating the composed function on roots of unity and applying an inverse FFT. An independent direct polynomial-convolution implementation validates this calculation: the largest discrepancy across the reported growth grid is below 4e-7, negligible relative to model uncertainty.
+
+Rarefaction evaluates the Costa nesting claim using expected descendant-lineage richness after sampling Europe and the Near East without replacement to the same sample size. The origin synthesis then standardizes three data-computed channels -- non-Jewish rarity, antiquity/time, and equal-sample-size nesting -- and fits a ridge-logistic model to labeled controls while holding the founders out. Coefficient uncertainty is propagated by Laplace-approximation Monte Carlo, and leave-one-out validation on the labeled panel checks whether the fitted model generalizes beyond individual controls.
 
 ## Public YFull and FTDNA Enrichment
 
@@ -642,6 +656,16 @@ Founder subclades (same Table 7 source):
 
 ---
 
+## Discussion
+
+The five analyses converge despite testing different parts of the argument: finite-time lineage survival, non-Jewish rarity, sampling-controlled nesting, ancient and medieval occurrence, and multichannel classification. No analysis positively favors a European origin for any of the four founders. N1b2 remains the least certain because its equal-sample-size nesting leans European, but its rarity and antiquity signals keep its combined estimate above parity. The convergence matters more than any single statistic: a European-assimilation explanation must simultaneously account for the founders’ multi-copy tail position, near-absence among non-Jews, nesting after sampling control, deep Near Eastern K context, and medieval Jewish carriers.
+
+The branching result should be interpreted as demographic discrimination rather than geographic proof by itself. Across Poisson, geometric, intermediate negative-binomial, constant-growth, and piecewise-growth specifications, a lineage that survives the bottleneck and rises to founder frequency is likely to appear in many copies, whereas recently absorbed host matrilines are concentrated among singletons. Geographic interpretation comes from combining that result with rarity, phylogeography, ancient DNA, and controls.
+
+Genome-wide evidence supplies context rather than directly assigning these maternal lineages. Shared Middle Eastern ancestry and a severe Ashkenazi bottleneck make a Near Eastern maternal core historically plausible, while substantial Southern European autosomal ancestry remains compatible with later admixture. Autosomal ancestry and a single uniparental marker answer different questions, so neither a large European autosomal component nor deep Near Eastern macro-clade ancestry alone determines the founders’ origin.
+
+Two ancient-DNA caveats limit resolution. The Pre-Pottery Neolithic K samples establish deep Near Eastern K at the macro-clade level but were typed only on the control region and do not demonstrate K1a1b1a or K2a2a in those individuals. Conversely, drift and lineage loss mean that absence of a derived founder subclade from a small ancient panel is not evidence that it was absent from the region. These qualifications constrain subclade-level certainty without creating affirmative support for recent European-host absorption.
+
 ## Conclusion
 
 Five methodologically independent analyses favor the same direction: **all four major Ashkenazi mtDNA founders are better explained by a Near Eastern / Levantine origin than by a simple prehistoric European-host origin**. The Bayesian synthesis makes this graded and quantitative -- every founder has a posterior probability of Near Eastern origin above 0.5, **highest for K2a2a (0.996)** and **strongly for the K1a founders** (K1a1b1a 0.956, K1a9 0.946, with credible intervals excluding parity), and **positive but more tentative for N1b2 (0.743)**, whose Europe-leaning nesting tempers its rarity and antiquity signals. Brook's sixth K founder branch **K1a4a** (~0.2%) is scored separately in the broader panel as an ambiguous convert-vs-Levantine stress case. This supports and extends the Livni-Skorecki / Behar model while explaining why the Costa European-assimilation model is not the best fit to these data:
@@ -659,12 +683,14 @@ Five methodologically independent analyses favor the same direction: **all four 
 - **Public subset.** Mitotree's public release here is a subset of the full ~330,000-sequence tree; ancient Near Eastern coverage is sparse.
 - **YFull/FTDNA public enrichment.** Public genealogy pages improve alias resolution, branch-age context and ancient-anchor visibility, but tester country/project counts are participation-biased and are not treated as population frequencies.
 - **Literature-coded controls.** Some non-founder controls use published classifications and manually curated frequencies rather than being discovered de novo from Mitotree. They are used for calibration and falsification, not as independent population estimates.
-- **Bayesian synthesis.** One ridge-logistic model on standardized, data-computed channels; coefficients fit to labeled controls with leave-one-out validation; founders held out. No hand-set `tanh` gains or elicited channel weights.
+- **Bayesian synthesis.** The ridge-logistic channel weights are fit to a small labeled panel with founders held out and leave-one-out validation. The posterior is a regularized evidence synthesis, not a fully generative demographic likelihood; no hand-set `tanh` gains or elicited channel weights are used.
 - **Branching independence.** The Galton-Watson layer assumes independent offspring counts conditional on the chosen law and generation. Negative-binomial overdispersion and piecewise growth test sensitivity to realistic variance and timing, but they do not model full family-level correlation or overlapping generations.
 - **Reconstructed motifs.** The haplotype network / glPca use motifs rebuilt from Mitotree defining-mutation strings, not per-sample alignments.
-- **Model parameters.** The branching model inherits Livni-Skorecki's assumptions, but this report no longer substitutes Behar/Costa sample-table counts for Mitotree-derived empirical counts.
+- **Model framework.** The branching equations serve both as a sensitivity framework and, through the singleton fraction, as an absorption-rate estimator. That absorption estimate is a moment-style estimate rather than a full likelihood fit with per-individual sampling weights; the report no longer substitutes Behar/Costa sample-table counts for Mitotree-derived empirical counts.
 - **Not a full phylogenetic dating paper.** TMRCA values are imported from Mitotree, and GenBank-query rows are metadata enrichments unless independently placed by Mitotree.
 - **Resolution, not direction.** These caveats bound the *precision* of the conclusion -- especially for N1b2, the most tentative founder, which would be sharpened by coding-region typing of ancient Near Eastern carriers and denser Levantine sampling -- but they do not supply positive evidence for the recent European-host origin model. mtDNA cannot fix an origin with autosomal-level certainty, yet under these data the Near Eastern origin of the Ashkenazi maternal founder core is the parsimonious and best-supported conclusion.
+
+**Reproducibility.** A single analysis pipeline reproduces the reported results, tables, and figures end to end from the public Mitotree release, GenBank queries, and cited study data.
 
 ## Sources
 
