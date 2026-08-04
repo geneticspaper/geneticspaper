@@ -19,6 +19,24 @@ norm_acc <- function(x) {
 make_enriched_deduped <- function() {
   message("== Module 0: enriched deduped Mitotree+GenBank+Behar+Costa dataset ==")
   raw <- load_samples()
+
+  # Mitotree can credit a later compilation instead of the paper that first
+  # published a sample. I14741 is one of the Erfurt individuals introduced by
+  # Waldman et al. (2022); Akbari et al. (2026) only reuses it. Keep the
+  # primary-study attribution in analysis tables and reports.
+  i14741 <- raw$Subject == "I14741"
+  if (any(i14741)) {
+    raw$Study[i14741] <- "Waldman 2022"
+    raw$Author[i14741] <- "Waldman"
+    raw$Year[i14741] <- "2022"
+    raw$PubMed[i14741] <- "36455558"
+    raw$URL[i14741] <- "https://doi.org/10.1016/j.cell.2022.11.002"
+    raw$Title[i14741] <- paste(
+      "Genome-wide data from medieval German Jews show that the Ashkenazi",
+      "founder event pre-dated the 14th century"
+    )
+    raw$Journal[i14741] <- "Cell 185:4703-4716"
+  }
   raw$source_dataset <- "Mitotree_S1"
   raw$AccessionBase <- norm_acc(raw$Accession)
   raw$SampleBase <- norm_acc(raw$Sample)

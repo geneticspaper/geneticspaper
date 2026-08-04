@@ -21,7 +21,7 @@ The analysis set is built from Mitotree S1, enriched with GenBank founder-query 
 | costa_flagged |   116 |
 | genes2026_flagged |    11 |
 | genbank_flagged | 51830 |
-| jewish_study_flagged |   217 |
+| jewish_study_flagged |   218 |
 
 ## Study Design and Validation Strategy
 
@@ -257,7 +257,7 @@ Per-founder computed inputs:
 
 | founder | root | nonjew_freq | ne_depth_kyr | medieval_jewish_carriers | public_tmrca_kyr | public_age_confidence | public_jewish_ancient_anchor | ne_richness_equal_n | eu_richness_equal_n | ne_pool | eu_pool |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| K1a1b1a | K1a | 0.000615 |  10.7 |     7 | 2.304 |     1 |     1 |    54 | 49.97 |    64 |   402 |
+| K1a1b1a | K1a | 0.000615 |  10.7 |     8 | 2.304 |     1 |     1 |    54 | 49.97 |    64 |   402 |
 | K1a9 | K1a | 0.000217 |  10.7 | 0 | 2.934 | 0.8761 |     1 |    54 | 49.97 |    64 |   402 |
 | K2a2a | K2a | 0.000434 |    NA |     2 | 4.252 | 0.8166 |     1 |  3.04 |     1 |    20 |     5 |
 | N1b2 | N1b | 0.000253 |  8.35 |     1 | 6.428 | 0.8521 | 0 |    22 | 25.67 |    29 |    32 |
@@ -585,7 +585,7 @@ Founder subclades (same Table 7 source):
 | K1a1b1a | I13866 | K1a1b1a+16223 | Germany |  1335 | Waldman 2022 |
 | K1a1b1a | I13870 | K1a1b1a | Germany |  1335 | Waldman 2022 |
 | K1a1b1a | I14846 | K1a1b1a+16223 | Germany |  1335 | Waldman 2022 |
-| K1a1b1a | I14741 | K1a1b1a+16223 | Germany |  1341 | Akbari 2026 |
+| K1a1b1a | I14741 | K1a1b1a+16223 | Germany |  1341 | Waldman 2022 |
 | K1a1b1a | Genes2026_ROQ12 | K1a1b1a | Spain |  1348 | Pallares-Vina 2026 |
 | K1a1b1a | Sobibor3 | K1a1b1a+16223 | Poland |  1893 | Diepenbroek 2021 |
 | K1a1b1a | Sobibor5 | K1a1b1a+16223 | Poland |  1893 | Diepenbroek 2021 |
