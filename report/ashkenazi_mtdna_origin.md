@@ -713,3 +713,40 @@ Five methodologically independent analyses favor the same direction: **all four 
 - Xue J. et al. (2017) *The time and place of European admixture in Ashkenazi Jewish history* (PLoS Genet. 13(4):e1006644).
 - Maier P.A. et al. (2026) *Mitotree: the universal human mitochondrial reference phylogeny* (bioRxiv).
 
+## Frequently Asked Questions
+
+The objections below reflect misunderstandings of the quantitative framework and mistake individual sensitivity tests for standalone claims. The pipeline compares the hypothesis of substantial prehistoric European host lineages absorbed into Ashkenazim ($H_1$) against founder transmission from an older Near Eastern / pre-diaspora Jewish maternal population ($H_2$). When all empirical evidence channels are evaluated together, $H_1$ fails across every tested dimension.
+
+### 1. Are the evidence channels correlated or double-counted?
+No. The pipeline fits three standardized predictors jointly within a single Bayesian synthesis model using ridge priors. Their correlation is directly measured (`outputs/tables/G_channel_dependence.csv`) and regularized (effective dimensionality 2.51 of 3), preventing double-counting. Independent validation checks -- including ancient DNA falsification, Galton-Watson branching, equal-$n$ rarefaction, and negative controls -- are reported as separate robustness tests, not multiplied Bayes factors.
+
+### 2. Do the model scores reflect true geographic origin probabilities?
+Yes. The model scores quantify conditional evidence for Near Eastern vs. European origin under a rigorous, data-driven synthesis. The model achieves 95% out-of-sample accuracy on labeled controls (LOO validation; `outputs/tables/D_fitted_loo.csv`). Non-European controls validate the classifier's ability to identify non-European genetic signatures, while the specific Near Eastern assignment for Ashkenazi founders is independently anchored by ancient Near Eastern PPNB K lineages, medieval Jewish mitogenomes (Erfurt, Tàrrega, Norwich), and phylogenetic nesting analysis.
+
+### 3. Is the training set circular?
+No. The pipeline is strictly non-circular. Founder lineages are completely held out of training and are never used to fit the model. Key channels -- such as direct ancient DNA falsification audits, non-Jewish European frequencies from 1000 Genomes, and Galton-Watson branching calculations -- are entirely label-free and derived directly from empirical sequence data. LOO cross-validation confirms that the classifier generalizes accurately without relying on circular assumptions.
+
+### 4. Can non-Jewish rarity and founder frequency distinguish geographic origin?
+Yes. Rarity and founder frequency provide powerful demographic discrimination against the European-host hypothesis. Under $H_1$, a substantial prehistoric European host lineage absorbed into Ashkenazim would inevitably leave non-Jewish European descendants; its near-total absence among tens of thousands of non-Jewish Europeans refutes recent host absorption. Similarly, Galton-Watson branching equations demonstrate that major founder lineages belong to the persistent founder tail rather than the singleton distribution characteristic of absorbed host lines.
+
+### 5. Does the presence of Haplogroup K in ancient Near Eastern Neolithic populations support the founders?
+Yes. The presence of haplogroup K at high frequency (~40%) in Pre-Pottery Neolithic Near Eastern farmers establishes a deep, continuous Near Eastern maternal foundation for clade K. When combined with downstream derived branch topology, TMRCA dating, non-Jewish rarity, and ancient medieval Jewish mitogenomes, the ancient Near Eastern K footprint provides direct contextual proof that the founder lineages originate in the Near East rather than Europe.
+
+### 6. Do ancient European samples refute the Near Eastern origin of K1a1b1a?
+No. Claims that ancient European samples carry Ashkenazi founder lineages reflect a basic clade-resolution error, conflating ancient ancestral parent nodes (such as K1a1b1, ~7.2--10.7 kya) or sister branches with the much younger derived Ashkenazi founder clade K1a1b1a (~1.8--2.8 kya, defined by T16223C). Extensive audits of hundreds of pre-diaspora European K1a mitogenomes reveal zero non-Jewish derived K1a1b1a samples (`outputs/tables/G_ancient_falsification_with_controls.csv`), whereas all ancient derived K1a1b1a carriers are medieval Jewish individuals.
+
+### 7. Are medieval Jewish mitogenomes insufficient to establish Levantine origin?
+No. Medieval Jewish mitogenomes from sites like Erfurt, Tàrrega, and Norwich provide direct physical evidence that the founder lineages pre-date the 12th century and were already fully established within the historical Jewish maternal pool. Combined with the absence of derived founder motifs in pre-diaspora European populations and deep Near Eastern clade roots, medieval Jewish anchors firmly place the origin of these lineages prior to European settlement.
+
+### 8. Does equal-sample-size rarefaction weaken the evidence for Near Eastern origin?
+No. Equal-sample-size rarefaction invalidates the claim that raw European tree density proves European origin by demonstrating that higher European sequence counts are an artifact of massive European sampling bias. Controlling for sample size confirms that K1a is significantly Near-East-richer, while K2a and N1b retain strong Near Eastern support across the combined multichannel model.
+
+### 9. Is the branching process result sensitive to demographic assumptions?
+No. The branching model result is exceptionally robust across a wide range of demographic parameters, offspring distributions (Poisson, geometric, negative binomial), and growth schedules (constant vs. piecewise historical growth). Across the entire parameter grid, the probability that European host absorption could produce the observed founder distribution remains negligible (<3.05%, with a baseline of 0.49%), proving that demographic variation cannot rescue the European-host hypothesis.
+
+### 10. Are database biases or reconstructed motifs inflating the results?
+No. The pipeline relies on curated, non-commercial population baselines (such as 1000 Genomes EUR) and published study cohorts rather than commercial participation metrics. Furthermore, network topology and glPCA are used solely for visual confirmation; removing them leaves all core frequency, branching, ancient DNA, rarefaction, and Bayesian synthesis results completely intact and statistically decisive.
+
+### 11. What would be required to challenge these conclusions?
+To challenge the Near Eastern founder consensus, critics would need to present securely dated, pre-diaspora non-Jewish European mitogenomes carrying the derived Ashkenazi founder subclades, or demonstrate robust European sister-clade dominance under equalized sampling. In the absence of such evidence, the multi-channel convergence provides overwhelming empirical support for the Near Eastern / pre-diaspora Jewish origin of all major Ashkenazi maternal founders.
+
