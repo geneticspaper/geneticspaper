@@ -145,10 +145,17 @@ K2a/K2a2a, but it is not a substitute for peer-reviewed primary analysis.
 
 ## References
 
-- Livni J. & Skorecki K. (2025). *Distinguishing between founder and host
-  population mtDNA lineages in the Ashkenazi population.* Human Gene (SSRN 5035272).
-- Costa M.D. et al. (2013). *A substantial prehistoric European ancestry amongst
-  Ashkenazi maternal lineages.* Nature Communications 4:2543.
-- Behar D.M. et al. (2006). Major Ashkenazi maternal founder analysis.
-- Maier P.A. et al. (2026). *Mitotree: the universal human mitochondrial reference
-  phylogeny at 10x the resolution.* bioRxiv.
+- Livni J. & Skorecki K. (2025). *Distinguishing between founder and host population mtDNA lineages in the Ashkenazi population.* Human Gene (SSRN 5035272).
+- Costa M.D. et al. (2013). *A substantial prehistoric European ancestry amongst Ashkenazi maternal lineages.* Nature Communications 4:2543.
+- Behar D.M. et al. (2006). *The matrilineal ancestry of Ashkenazi Jewry.* American Journal of Human Genetics 78:487–497.
+- Maier P.A. et al. (2026). *Mitotree: the universal human mitochondrial reference phylogeny.* bioRxiv.
+- Waldman S. et al. (2022). *Genome-wide data from medieval German Jews show that the Ashkenazi founder event pre-dated the 14th century.* Cell 185:4703–4716.
+- Brace S. et al. (2022). *Genomes from a medieval mass burial show Ashkenazi-associated hereditary diseases pre-date the 12th century.* Current Biology 32:4350–4359.
+- Pallares-Vina L. et al. (2026). *Uncovering a medieval pogrom: genetic history of a Jewish community in Catalonia (Spain).* Genes 17(3):358.
+- Fernandez E. et al. (2014). *Ancient DNA analysis of 8000 B.C. Near Eastern farmers.* PLoS Genetics 10(6):e1004401.
+- Grossman S. et al. (2019). *Rare human mitochondrial HV lineages spread from the Near East and Caucasus during post-LGM and Neolithic expansions.* Scientific Reports 9:12280.
+- Brook K.A. (2022). *The Maternal Genetic Lineages of Ashkenazic Jews.* Academic Studies Press.
+- Atzmon G. et al. (2010). *Abraham's children in the genome era: major Jewish Diaspora populations comprise distinct genetic clusters with shared Middle Eastern ancestry.* American Journal of Human Genetics 86:850–859.
+- Carmi S. et al. (2014). *Sequencing an Ashkenazi reference panel supports population-targeted personal genomics and illuminates Jewish and European origins.* Nature Communications 5:4835.
+- Agranat-Tamir L. et al. (2020). *The genomic history of the Bronze Age Southern Levant.* Cell 181:1146–1157.
+- 1000 Genomes Project Consortium (2015). *A global reference for human genetic variation.* Nature 526:68–74.
