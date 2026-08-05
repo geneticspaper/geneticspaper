@@ -28,34 +28,52 @@ deduplicated dataset, not separate sample tables.
    Levant); historical founder-clade hits are explicitly tabulated; and
    parent-signature frequency gradients are more compatible with a Near Eastern
    source for K1a/K2a than with a purely European source.
+4. **Advanced models & Bayesian synthesis (Module D).** Sweeps negative-binomial
+   offspring dispersion, tests piecewise historical expansion timing, and builds
+   a multi-channel Bayesian origin synthesis over rarity, antiquity, branch age,
+   and equal-$n$ nesting channels.
+5. **Origin stress tests & host bounds (Module G).** Falsifies European host
+   predictions against the AADR v66 ancient mtDNA record, computes 1000 Genomes
+   European host frequency bounds and likelihood ratios, and evaluates prior sensitivity.
 
-The full write-up with all figures and tables is
-[`report/ashkenazi_mtdna_origin.md`](report/ashkenazi_mtdna_origin.md).
+The full write-up with all figures and tables is in
+[`report/ashkenazi_mtdna_origin.md`](report/ashkenazi_mtdna_origin.md) and as a
+scientific PDF manuscript at [`report/ashkenazi_mtdna_paper.pdf`](report/ashkenazi_mtdna_paper.pdf).
 
 ## Layout
 
 ```
 mitomdoel/
-  scripts/00_extract_data.py     # stream-extract the Mitotree .xlsx -> CSV
+  scripts/00_extract_data.py           # stream-extract the Mitotree .xlsx -> CSV
   scripts/01_fetch_genbank_founders.py # fetch GenBank founder metadata
-  data/reference/*.csv           # hand-encoded tables from the papers
-  data/derived/*.csv             # extracted Mitotree sheets (gitignored)
-  R/utils.R                      # data loaders, region classifier, Galton-Watson
-  R/00_enrich_dedup.R            # Mitotree+GenBank enrichment and deduplication
-  R/01_branching_model.R         # Module A
-  R/02_phylogeography.R          # Module B (ape, pegas)
-  R/03_ancient_and_diffusion.R   # Module C (ape, adegenet)
-  R/04_report.R                  # assembles the Markdown report
-  run_all.R                      # runs everything
-  report/ashkenazi_mtdna_origin.{md,qmd}
-  outputs/{figures,tables}/      # generated artifacts
+  scripts/02_extract_genes2026.py       # extract Genes 2026 supplementary data
+  scripts/03_fetch_public_haplogroup_pages.py # fetch YFull / FTDNA public metadata
+  scripts/04_extract_aadr.py           # extract AADR ancient mtDNA records
+  scripts/compute_1kg_eu_freq.py       # compute 1000 Genomes EUR clade frequencies
+  data/reference/*.csv                 # hand-encoded tables and reference data
+  data/derived/*.csv                   # extracted Mitotree sheets (gitignored)
+  R/utils.R                            # data loaders, region classifier, GW PMF solvers
+  R/lineage_data.R                     # lineage definitions and frequency loaders
+  R/00_enrich_dedup.R                  # Mitotree+GenBank enrichment and deduplication
+  R/01_branching_model.R               # Module A (branching model)
+  R/02_phylogeography.R                # Module B (ape, pegas)
+  R/03_ancient_and_diffusion.R         # Module C (ape, adegenet)
+  R/06_advanced_models.R               # Module D (dispersion, growth timing, Bayesian synthesis)
+  R/07_origin_stress_tests.R           # Module G (AADR ancient falsification & 1KG EUR host bounds)
+  R/04_report.R                        # assembles the Markdown report
+  R/05_paper.R                         # compiles the scientific LaTeX/PDF paper manuscript
+  run_all.R                            # runs everything
+  report/ashkenazi_mtdna_origin.{md,qmd} # Markdown report and Quarto source
+  report/ashkenazi_mtdna_paper.{pdf,tex} # Scientific paper PDF and LaTeX source
+  outputs/{figures,tables}/            # generated artifacts
 ```
 
 ## Requirements
 
 - **R >= 4.4** (developed on 4.6.1).
 - R packages: `ape`, `pegas`, `adegenet` (everything else is base R).
-- **Python 3** (standard library only) for the one-off data extraction.
+- **Python 3** (standard library only) for one-off data extractions.
+- **pdflatex / LaTeX system** (or `tinytex`) for compiling `report/ashkenazi_mtdna_paper.pdf`.
 
 Install the R packages into a project-local library (keeps the system R clean):
 
@@ -78,15 +96,23 @@ python3 scripts/00_extract_data.py "/path/to/media-1(1).xlsx"
 # 2. Fetch additional GenBank founder metadata (optional but recommended)
 python3 scripts/01_fetch_genbank_founders.py your.email@example.org
 
-# 3. Run the whole pipeline (dedup -> branching model -> phylogeography -> ancient DNA -> report)
+# 3. Compute 1000 Genomes EUR clade frequencies (auto-run by run_all.R if missing)
+python3 scripts/compute_1kg_eu_freq.py
+
+# 4. Run the whole pipeline (dedup -> branching -> phylogeography -> ancient DNA -> advanced models -> stress tests -> report & paper)
 Rscript run_all.R
 
-# 4. (optional) render the Quarto report if quarto + pandoc are available
+# 5. (optional) render the Quarto report if quarto + pandoc are available
 quarto render report/ashkenazi_mtdna_origin.qmd
 ```
 
-Outputs land in `outputs/figures/` (PNG), `outputs/tables/` (CSV), and
-`report/ashkenazi_mtdna_origin.md`.
+Frequency sources can be overridden via environment variables before running `run_all.R`:
+- `MTDNA_ASHKENAZI_FREQ=brook|mitotree`
+- `MTDNA_NONJEW_FREQ=1kg_eur|livni_skorecki|mitotree`
+- `MTDNA_FREQ_COMPARE=1` (writes `D_frequency_source_comparison.csv`)
+
+Outputs land in `outputs/figures/` (PNG), `outputs/tables/` (CSV),
+`report/ashkenazi_mtdna_origin.md`, and `report/ashkenazi_mtdna_paper.pdf`.
 
 ## Data provenance
 
