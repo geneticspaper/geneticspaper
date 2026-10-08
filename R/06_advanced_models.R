@@ -29,11 +29,6 @@
 if (!exists("gw_descendant_pmf")) source(file.path("R", "utils.R"))
 if (!exists("compute_lineage_inputs")) source(file.path("R", "lineage_data.R"))
 
-.adv_read_tab <- function(name) {
-  p <- file.path(TAB_DIR, name)
-  if (file.exists(p)) read.csv(p, stringsAsFactors = FALSE) else data.frame()
-}
-
 # Founder -> macro (super) clade used by the ancient / nesting / rarefaction
 # tables (K1a for the two K1a founders, K2a for K2a2a, N1b for N1b2).
 FOUNDER_ROOT <- c(K1a1b1a = "K1a", K1a9 = "K1a", K2a2a = "K2a", N1b2 = "N1b")
@@ -94,10 +89,13 @@ public_haplogroup_context <- function(lineage_key) {
 
 public_time_adjustment <- function(public_tmrca_kyr, public_age_confidence,
                                    public_jewish_ancient_anchor,
-                                   medieval_jewish_carriers) {
+                                   medieval_jewish_carriers = NULL) {
   if (is.na(public_tmrca_kyr) || public_age_confidence <= 0) return(0)
   recent_penalty <- if (public_tmrca_kyr < 1) -0.25 * public_age_confidence else 0
-  anchored <- medieval_jewish_carriers > 0 || public_jewish_ancient_anchor > 0
+  # The anchor comes from the public-tree pages only. `medieval_jewish_carriers`
+  # is already its own sub-channel of z_time, so letting it set `anchored` here
+  # would make one ancient carrier count twice inside the same channel.
+  anchored <- public_jewish_ancient_anchor > 0
   mature_anchor_bonus <- if (anchored && public_tmrca_kyr >= 1.5) 0.12 * public_age_confidence else 0
   recent_penalty + mature_anchor_bonus
 }
@@ -108,8 +106,8 @@ public_time_adjustment <- function(public_tmrca_kyr, public_age_confidence,
 # Poisson is the size -> Inf limit and geometric is size = 1. We sweep a ladder
 # of dispersions to show the single-descendant and extinction probabilities
 # move smoothly between the two extremes already reported.
-nbinom_size_sensitivity <- function(k = 15L,
-                                     growth = c(1.0, 1.025, 1.05, 1.075, 1.1),
+nbinom_size_sensitivity <- function(k = GW_K,
+                                     growth = c(1.15, 1.20, 1.28, 1.35),
                                      sizes = c(0.5, 1, 2, 5, 20)) {
   rows <- list()
   add <- function(label, model, size, m) {
@@ -141,17 +139,50 @@ nbinom_size_sensitivity <- function(k = 15L,
 # expanded rapidly. We encode a piecewise schedule and compare it against a
 # constant-growth process with the *same* net expansion (same E[Z_k]), so any
 # difference is attributable purely to the timing of growth.
-default_growth_schedule <- function(k = 15L) {
-  # Three phases over k generations: founder bottleneck (near-stationary),
-  # steady growth, then rapid modern expansion.
-  phase <- cut(seq_len(k), breaks = c(0, round(k / 3), round(2 * k / 3), k),
-               labels = c("bottleneck", "steady", "expansion"))
-  m_t <- c(bottleneck = 0.98, steady = 1.10, expansion = 1.28)[as.character(phase)]
-  data.frame(generation = seq_len(k), phase = as.character(phase),
-             growth_ratio = as.numeric(m_t), stringsAsFactors = FALSE)
+# Calendar-anchored growth schedule.
+#
+# The previous version split k generations into equal thirds with ratios
+# 0.98 / 1.10 / 1.28 and no calendar at all. At any plausible generation length
+# that placed the "bottleneck" in the 17th-18th century and the "rapid modern
+# expansion" in 1900-2025 -- the reverse of the actual history, in which the
+# bottleneck is medieval and the 20th century is the one period of no Ashkenazi
+# growth. It also hardcoded a sub-1 ratio (0.98 = decline, not stasis), and the
+# reported "early stasis prunes more lineages" result followed from that single
+# constant rather than from the history.
+#
+# Phase boundaries are now YEARS, converted to generations with GEN_YEARS, and
+# the ratios follow published Jewish population estimates (DellaPergola):
+# medieval near-stasis, early-modern growth, the great 19th-century expansion,
+# then a 20th century that is flat overall.
+default_growth_schedule <- function(k = GW_K, gen_years = GEN_YEARS,
+                                    present = PRESENT_YEAR,
+                                    phases = data.frame(
+                                      end_year     = c(1500, 1750, 1900, 2100),
+                                      # Chosen to multiply to NET_EXPANSION_TARGET
+                                      # with the historical SHAPE intact: a flat
+                                      # medieval phase, sustained early-modern
+                                      # growth, the 19th-century expansion, and a
+                                      # 20th century that is flat overall because
+                                      # the Holocaust offsets natural increase.
+                                      growth_ratio = c(1.00, 1.36, 1.56, 1.00),
+                                      phase = c("medieval_stasis", "early_modern",
+                                                "great_expansion", "modern"),
+                                      stringsAsFactors = FALSE),
+                                    net_target = NET_EXPANSION_TARGET) {
+  gen_year <- present - gen_years * (k:1)
+  idx <- findInterval(gen_year, c(-Inf, phases$end_year[-nrow(phases)]))
+  m_t <- phases$growth_ratio[idx]
+  # Optionally rescale the whole schedule so it reproduces an observed net
+  # expansion while keeping the relative shape of the phases.
+  if (!is.null(net_target) && is.finite(net_target) && net_target > 0) {
+    m_t <- m_t * (net_target / prod(m_t))^(1 / k)
+  }
+  data.frame(generation = seq_len(k), year = gen_year,
+             phase = phases$phase[idx], growth_ratio = m_t,
+             stringsAsFactors = FALSE)
 }
 
-piecewise_growth_model <- function(k = 15L, schedule = default_growth_schedule(k),
+piecewise_growth_model <- function(k = GW_K, schedule = default_growth_schedule(k),
                                    model = "poisson") {
   m_t <- schedule$growth_ratio
   # Constant-growth comparator with identical net expansion prod(m_t).
@@ -186,8 +217,10 @@ piecewise_growth_model <- function(k = 15L, schedule = default_growth_schedule(k
 # Assemble per-founder inputs from the enriched Mitotree sample set (no hand-set
 # CSV numerics; medieval carriers are counted from ancient records only).
 bayesian_origin_inputs <- function(founders = names(FOUNDER_ROOT)) {
-  comp <- compute_lineage_inputs_batch(founders, nesting_modes = "ne_eu",
-                                       rarefy_roots = founders)
+  # No `rarefy_roots`: founders must use the same macro-root rule as the
+  # controls and the panel, or the nesting channel is not one measurement and
+  # its single fitted coefficient is applied to incommensurable quantities.
+  comp <- compute_lineage_inputs_batch(founders, nesting_modes = "ne_eu")
   do.call(rbind, lapply(seq_len(nrow(comp)), function(i) {
     f <- comp$lineage_key[i]
     pc <- public_haplogroup_context(f)
@@ -264,8 +297,6 @@ bayesian_origin_inputs <- function(founders = names(FOUNDER_ROOT)) {
 }
 
 negative_control_summary <- function(syn) {
-  dnec <- load_noneuropean()
-  mj <- load_major_lineages()
   out <- .syn_merge_inputs(syn, "eu_control")
   out$founder <- paste0(out$lineage, " (control)")
   out[, c("founder", "lineage", "nonjew_freq", "rarity", "depth_kyr", "carriers",
@@ -363,8 +394,9 @@ collect_channel_inputs <- function() {
   }
 
   founder_keys <- names(FOUNDER_ROOT)
+  # Same macro-root rule as every other group (see bayesian_origin_inputs).
   founder_inp <- compute_lineage_inputs_batch(
-    founder_keys, nesting_modes = "ne_eu", rarefy_roots = founder_keys
+    founder_keys, nesting_modes = "ne_eu"
   )
   for (i in seq_len(nrow(founder_inp)))
     add(founder_inp$lineage_key[i], "founder", NA_real_, founder_inp[i, ])
@@ -540,12 +572,8 @@ run_advanced_models <- function() {
     rep("noneu_eu", nrow(load_noneuropean())),
     rep("ne_eu", nrow(load_major_lineages()))
   )
-  audit_rarefy <- c(
-    names(FOUNDER_ROOT),
-    rep(NA_character_, 2L + nrow(load_noneuropean()) + nrow(load_major_lineages()))
-  )
   audit <- compute_lineage_inputs_batch(
-    audit_keys, nesting_modes = audit_modes, rarefy_roots = audit_rarefy
+    audit_keys, nesting_modes = audit_modes
   )
   audit$panel <- c(
     rep("founder", length(FOUNDER_ROOT)),
@@ -566,7 +594,7 @@ run_advanced_models <- function() {
   plot(NA, xlim = range(nb$growth_rate),
        ylim = range(nb$prob_one_descendant * 100),
        xlab = "Growth ratio m (daughters / mother)",
-       ylab = "P(exactly one descendant at gen 15)  [%]",
+       ylab = sprintf("P(exactly one descendant at gen %d)  [%%]", GW_K),
        main = "Offspring overdispersion: negative-binomial size sweep")
   for (i in seq_along(sizes)) {
     s <- nb[nb$nb_size == sizes[i], ]
@@ -723,8 +751,10 @@ run_advanced_models <- function() {
                     "ambiguous/disputed assignment"))
   par(op); dev.off()
 
-  frequency_source_comparison()
-
+  # The frequency-source comparison deliberately re-fits under other source
+  # configurations, so it is run from run_all.R behind MTDNA_FREQ_COMPARE rather
+  # than here -- calling it unconditionally mid-pipeline left every later module
+  # running under whatever sources it last set.
   invisible(list(nbinom = nb, piecewise = pw, synthesis = syn,
                  negative_control = nc, noneuropean_control = ne_ctrl,
                  major_lineages = ml))
@@ -737,6 +767,10 @@ frequency_source_comparison <- function() {
     brook_livni = list(ashkenazi = "brook", nonjew = "livni_skorecki"),
     mitotree_only = list(ashkenazi = "mitotree", nonjew = "mitotree")
   )
+  # Restore whatever the caller configured (possibly from MTDNA_*_FREQ), rather
+  # than resetting to the defaults: modules 07/04/05 run after this one.
+  prior <- frequency_sources()
+  on.exit(set_frequency_sources(prior$ashkenazi, prior$nonjew), add = TRUE)
   rows <- list()
   for (tag in names(configs)) {
     set_frequency_sources(
@@ -752,7 +786,6 @@ frequency_source_comparison <- function() {
   out <- do.call(rbind, rows)
   rownames(out) <- NULL
   save_table(out, "D_frequency_source_comparison.csv")
-  set_frequency_sources(ashkenazi = "brook", nonjew = "1kg_eur")
   out
 }
 

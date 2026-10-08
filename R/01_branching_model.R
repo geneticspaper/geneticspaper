@@ -7,9 +7,12 @@
 #   * Fig 4/5  -- founder-vs-absorbed detectability (cumulative Poisson).
 #   * Mitotree/GenBank enriched founder counts for K1a1b1a, K1a9, K2a2a, N1b2.
 #   * The Livni-Skorecki detectability equations as model framework. Absorption
-#     rates are no longer estimated from Behar/Costa sample tables.
+#     is estimated from the enriched reference set's singleton fraction, with
+#     the Behar 2006 Ashkenazi sample as a separate, lineage-specific anchor
+#     (see estimate_absorption / A_absorption_estimate.csv).
 #   * Section 2.4.4 / Fig 6 -- feasibility of the "Euro-Levantine" scenario
-#                      (probability of >2 major founders ~ 0.36%).
+#                      (probability of >=3 major founders ~ 1.5%, or ~5.3% with a
+#                       Dirichlet-derived rather than assumed major-frequency term).
 #
 # All equations are cited to the preprint (ssrn-5035272 / hum.gen.2025.201445).
 
@@ -20,8 +23,16 @@ if (!exists("build_topology")) source(file.path("R", "02_phylogeography.R"))
 # A1. Table 1 -- probability of a single descendant after 15 generations.
 #     (Livni-Skorecki eq 1; Galton-Watson lineage extinction.)
 # --------------------------------------------------------------------------
-reproduce_table1 <- function(k = 15L, model = "poisson") {
-  growth <- c(1.0, 1.025, 1.05, 1.075, 1.1)
+# Growth grid for the sensitivity sweep. The old c(1.0 .. 1.1) implied 150
+# founder matrilines expanding to ~450-750 women by the present, against an
+# actual Ashkenazi maternal population of order 10^6. The grid is centred on
+# GW_M_EFFECTIVE (the single demographic constant, see R/utils.R), with 1.10
+# retained as a conservative low end and 1.40 as a high one.
+GROWTH_GRID <- sort(unique(round(
+  c(1.10, 1.15, 1.20, GW_M_EFFECTIVE, 1.28, 1.30, 1.35, 1.40), 4)))
+
+reproduce_table1 <- function(k = GW_K, model = "poisson") {
+  growth <- GROWTH_GRID
   p1 <- vapply(growth, function(m) gw_prob_single(m, k = k, model = model), numeric(1))
   data.frame(growth_rate = growth, prob_one_descendant = round(p1, 7))
 }
@@ -38,7 +49,11 @@ conv_trunc_direct <- function(a, b, jmax) {
   out
 }
 
-gw_descendant_pmf_direct <- function(m, k = 15L, jmax = 150L) {
+# jmax must cover the bulk of Z_k or the truncated convolution disagrees with
+# the exact result for reasons of its own grid, not of either method: at
+# k = 27 a jmax of 150 produced a spurious 4.8% mismatch in the audit table.
+gw_descendant_pmf_direct <- function(m, k = GW_K,
+                                     jmax = max(150L, ceiling(40 * m^k))) {
   off <- dpois(0:jmax, lambda = m)
   off <- off / sum(off)
   dist <- numeric(jmax + 1L)
@@ -56,7 +71,7 @@ gw_descendant_pmf_direct <- function(m, k = 15L, jmax = 150L) {
   dist
 }
 
-branching_math_audit <- function(k = 15L) {
+branching_math_audit <- function(k = GW_K) {
   growth <- c(1.0, 1.025, 1.05, 1.075, 1.1)
   do.call(rbind, lapply(growth, function(m) {
     fast <- gw_descendant_pmf(m, k = k, jmax = 400L)[2L]
@@ -70,8 +85,8 @@ branching_math_audit <- function(k = 15L) {
   }))
 }
 
-offspring_law_sensitivity <- function(k = 15L) {
-  growth <- c(1.0, 1.025, 1.05, 1.075, 1.1)
+offspring_law_sensitivity <- function(k = GW_K) {
+  growth <- GROWTH_GRID
   do.call(rbind, lapply(c("poisson", "geometric"), function(model) {
     data.frame(
       offspring_model = model,
@@ -187,12 +202,64 @@ absorption_rate <- function(a_eps, K) 1 - (1 - a_eps)^(1 / K)
 
 # Number of absorbed lineages ever entering the population (eq 7/8), then
 # reduced by lineage extinction (surviving fraction 1 - s0).
-absorbed_lineages <- function(rho, r, M_current, s0 = 2/3) {
-  # continuous-growth integral of per-generation absorbed mothers:
-  # L = (rho / r) * M_current  (since integral_0^K M0 e^{rt} dt ~ M_current/r)
+absorbed_lineages <- function(rho, r, M_current, s0 = 2/3, K = NULL) {
+  # Continuous-growth integral of per-generation absorbed mothers:
+  #   int_0^K M0 e^{rt} dt = (M_current - M0) / r = (M_current / r) (1 - e^{-rK}).
+  # The (1 - e^{-rK}) factor is NOT negligible over a finite window -- dropping
+  # it overstates the count. The size of the correction depends on r = log(m):
+  # 1.51x at K = 15 under the retired m = 1.075, but only ~1.002x at K = 25
+  # under the current m = 1.28. Applied whenever K is supplied.
   raw <- (rho / r) * M_current
+  if (!is.null(K) && is.finite(K) && is.finite(r) && r > 0) {
+    raw <- raw * (1 - exp(-r * K))
+  }
   surviving <- raw * (1 - s0)
   list(raw = raw, surviving = surviving)
+}
+
+# How far is a_eps actually determined by absorption, as opposed to by how many
+# samples were drawn and how finely the tree labels them?
+#
+# Rarefying ONE unchanging pool and truncating its clade labels answers that
+# directly, and the answer is unflattering: the singleton fraction of the
+# enriched set runs from 0.22 at n = 57,531 to ~0.96 at n = 100, and from 0.00
+# to 0.22 as the label is truncated from 1 character to full depth. Under Ewens
+# sampling E[singleton fraction] = theta/(theta + n - 1), so it is a function of
+# sample size by construction. The estimate is therefore only comparable
+# between samples of equal n at equal clade resolution, and the enriched set's
+# LOW value reflects its large n, not less absorption -- which is the opposite
+# of reading it as an upper bound.
+absorption_identifiability <- function(haplogroups,
+                                       n_grid = c(100L, 565L, 2000L, 10000L),
+                                       depth_grid = c(1L, 3L, 4L, 6L),
+                                       K = GW_K, reps = 40L, seed = 1L) {
+  hg <- haplogroups[!is.na(haplogroups) & nzchar(haplogroups)]
+  if (!length(hg)) return(data.frame())
+  one <- function(x) sum(table(x) == 1) / length(x)
+  old <- if (exists(".Random.seed", .GlobalEnv))
+    get(".Random.seed", .GlobalEnv) else NULL
+  on.exit(if (!is.null(old)) assign(".Random.seed", old, .GlobalEnv), add = TRUE)
+  set.seed(seed)
+  rows <- list()
+  full_n <- length(hg)
+  for (n in c(n_grid[n_grid < full_n], full_n)) {
+    a <- if (n < full_n) mean(replicate(reps, one(sample(hg, n)))) else one(hg)
+    rows[[length(rows) + 1L]] <- data.frame(
+      varied = "sample_size", setting = as.character(n),
+      n = n, clade_resolution = "full",
+      a_eps = round(a, 4), absorption_rate_per_gen = round(absorption_rate(a, K), 5),
+      stringsAsFactors = FALSE)
+  }
+  for (d in depth_grid) {
+    h2 <- substr(hg, 1L, d)
+    a <- one(h2)
+    rows[[length(rows) + 1L]] <- data.frame(
+      varied = "clade_resolution", setting = paste0(d, "_chars"),
+      n = full_n, clade_resolution = paste0(d, " chars"),
+      a_eps = round(a, 4), absorption_rate_per_gen = round(absorption_rate(a, K), 5),
+      stringsAsFactors = FALSE)
+  }
+  do.call(rbind, rows)
 }
 
 # Individual-level singleton fraction: the share of sampled individuals who are
@@ -210,7 +277,7 @@ singleton_fraction <- function(haplogroups) {
 # across a grid of founder-event depths K. Growth r, founder size M0, and
 # extinction s0 are taken from the founder-event parameter table so the derived
 # absorbed-lineage count is internally consistent (no external census guess).
-estimate_absorption <- function(K_grid = c(15L, 25L, 32L)) {
+estimate_absorption <- function(K_grid = c(25L, GW_K, 32L)) {
   params <- load_params()
   pv <- setNames(params$selected, params$symbol)
   m  <- as.numeric(pv[["m"]])          # per-generation growth ratio
@@ -245,7 +312,7 @@ estimate_absorption <- function(K_grid = c(15L, 25L, 32L)) {
     do.call(rbind, lapply(K_grid, function(K) {
       rho <- absorption_rate(a_eps, K)
       M_current <- M0 * m^K
-      absL <- absorbed_lineages(rho, r, M_current, s0)
+      absL <- absorbed_lineages(rho, r, M_current, s0, K = K)
       data.frame(
         sample = nm,
         description = defs[[nm]]$label,
@@ -266,32 +333,61 @@ estimate_absorption <- function(K_grid = c(15L, 25L, 32L)) {
 #     Could a large (non-founder-effect) Roman-era Jewish population have
 #     generated >=3 of the four major Ashkenazi founders by private mutation?
 # --------------------------------------------------------------------------
-euro_levantine_feasibility <- function(mil_age = 4000, r = 0.05, gens = 40,
-                                       mu_hv = 4.3e-3, founder_families = 150,
-                                       sigma_major = 0.03) {
-  families_at_event <- mil_age * exp(r * gens)                 # ~29,556
-  total_mothers     <- (mil_age / r) * (exp(r * gens) - 1)     # eq 24 ~511,125
-  n_private_haplos  <- total_mothers * mu_hv                   # ~2,200
-  freq_private      <- n_private_haplos / families_at_event    # ~0.0744
-  expected_in_founders <- founder_families * freq_private      # ~11
-  # Expected number of these private haplotypes that grow into MAJOR (>~2%
-  # frequency) founders. sigma_major is an explicit modeling assumption -- the
-  # per-lineage probability of reaching major frequency -- NOT fit to reproduce
-  # any target result. A plausible ~3% base is used here; euro_levantine_
-  # sensitivity() varies sigma_major, mu_hv and founder_families so the
-  # qualitative conclusion does not depend on the exact value.
-  lambda_major <- expected_in_founders * sigma_major
-  p_ge3 <- prob_at_least(3, lambda_major)
-  p_ge2 <- prob_at_least(2, lambda_major)
+# Per-generation HVS-I (np 16051-16400) mutation probability, from the Soares
+# et al. (2009) clock of one substitution per 8,650 years, expressed at this
+# project's generation length. The previous hardcoded 4.3e-3 implied a 37-year
+# generation while `gens` assumed 25-year ones -- two different generation
+# lengths inside one function.
+MU_HVS1 <- GEN_YEARS / 8650
+
+# Probability a founder lineage reaches `tau` of the present-day pool. Under
+# neutral expansion from F founder lineages the present shares are approximately
+# Dirichlet(1,...,1), so P(share >= tau) = (1 - tau)^(F - 1). Deriving it beats
+# asserting it: at F = 150, tau = 2% this gives 0.049, not the 0.03 previously
+# assumed.
+sigma_major_dirichlet <- function(founder_families, tau_major = 0.02) {
+  (1 - tau_major)^(founder_families - 1)
+}
+
+euro_levantine_feasibility <- function(pool_families = 4000, r = 0.05, gens = 40,
+                                       mu_hv = MU_HVS1, founder_families = 150,
+                                       sigma_major = 0.03, tau_major = 0.02) {
+  families_at_event <- pool_families * exp(r * gens)
+  total_mothers     <- (pool_families / r) * (exp(r * gens) - 1)
+  n_private_haplos  <- total_mothers * mu_hv
+  # Expected NEW HVS-I mutations on ONE present-day matriline over the window.
+  #
+  # This previously divided every mutation that ever arose by the CURRENT
+  # population (n_private_haplos / families_at_event), which is only valid if
+  # each mutation leaves exactly one living carrier. In a growing population
+  # mutations that arose early leave many descendants, so that ratio understates
+  # the per-lineage count by (r*gens)/(1 - exp(-r*gens)) = 2.31x at r = 0.05,
+  # gens = 40. A forward simulation of the same process gives 0.176 of present
+  # matrilines carrying a within-window mutation against the old formula's
+  # 0.074, confirming the correction.
+  per_lineage_mut <- mu_hv * gens
+  freq_private    <- 1 - exp(-per_lineage_mut)
+  expected_in_founders <- founder_families * freq_private
+  # sigma_major: probability one such private lineage reaches major (~2%)
+  # frequency. Reported both as the previously assumed constant and as the
+  # Dirichlet-derived value, because the headline is sensitive to it.
+  sigma_derived <- sigma_major_dirichlet(founder_families, tau_major)
+  lambda_major  <- expected_in_founders * sigma_major
+  lambda_derived <- expected_in_founders * sigma_derived
   list(
     families_at_event = families_at_event,
     total_mothers = total_mothers,
     n_private_haplotypes = n_private_haplos,
+    per_lineage_mutations = per_lineage_mut,
     freq_private = freq_private,
     expected_private_in_founders = expected_in_founders,
+    sigma_major_assumed = sigma_major,
+    sigma_major_dirichlet = sigma_derived,
     lambda_major = lambda_major,
-    prob_ge2_major = p_ge2,
-    prob_ge3_major = p_ge3
+    prob_ge2_major = prob_at_least(2, lambda_major),
+    prob_ge3_major = prob_at_least(3, lambda_major),
+    lambda_major_dirichlet = lambda_derived,
+    prob_ge3_major_dirichlet = prob_at_least(3, lambda_derived)
   )
 }
 
@@ -300,29 +396,40 @@ euro_levantine_feasibility <- function(mil_age = 4000, r = 0.05, gens = 40,
 # and number of founder families). Reported so the "model-disfavored" conclusion
 # is shown to hold across a plausible range rather than resting on one value,
 # replacing the earlier practice of pinning sigma_major to a target percentage.
+# `r` and `gens` are now swept too: they drive the per-lineage mutation count
+# and so the headline, but were previously held fixed. The sigma_major grid
+# spans the Dirichlet-derived value (0.049 at F = 150) as well as the lower
+# value the base case assumes.
 euro_levantine_sensitivity <- function(
-    sigma_grid = c(0.01, 0.02, 0.03, 0.04, 0.06),
-    mu_grid = c(3.0e-3, 4.3e-3, 6.0e-3),
-    founders_grid = c(100, 150, 250)) {
-  base <- list(sigma_major = 0.03, mu_hv = 4.3e-3, founder_families = 150)
+    sigma_grid = c(0.01, 0.02, 0.03, 0.049, 0.06, 0.10),
+    mu_grid = c(2.9e-3, MU_HVS1, 4.3e-3, 6.0e-3),
+    founders_grid = c(100, 150, 250, 350),
+    r_grid = c(0.03, 0.05, 0.07),
+    gens_grid = c(30, 40, 50)) {
+  base <- list(sigma_major = 0.03, mu_hv = MU_HVS1, founder_families = 150,
+               r = 0.05, gens = 40)
   rows <- list()
   vary <- function(param, values) {
     for (v in values) {
       args <- base; args[[param]] <- v
-      el <- euro_levantine_feasibility(mu_hv = args$mu_hv,
-                                       founder_families = args$founder_families,
-                                       sigma_major = args$sigma_major)
+      el <- euro_levantine_feasibility(
+        r = args$r, gens = args$gens, mu_hv = args$mu_hv,
+        founder_families = args$founder_families,
+        sigma_major = args$sigma_major)
       rows[[length(rows) + 1L]] <<- data.frame(
         parameter = param, value = v,
         lambda_major = round(el$lambda_major, 4),
         prob_ge2_major = el$prob_ge2_major,
         prob_ge3_major = el$prob_ge3_major,
+        prob_ge3_major_dirichlet_sigma = el$prob_ge3_major_dirichlet,
         stringsAsFactors = FALSE)
     }
   }
   vary("sigma_major", sigma_grid)
   vary("mu_hv", mu_grid)
   vary("founder_families", founders_grid)
+  vary("r", r_grid)
+  vary("gens", gens_grid)
   do.call(rbind, rows)
 }
 
@@ -356,6 +463,12 @@ run_branching_model <- function() {
   # ---- Absorption-rate estimate (largest available sample + Behar benchmark) ----
   absorb <- estimate_absorption()
   save_table(absorb, "A_absorption_estimate.csv")
+  # Identifiability check: how much of a_eps is sample size and label depth
+  # rather than absorption (see absorption_identifiability).
+  enr <- load_analysis_samples()
+  absorb_id <- absorption_identifiability(
+    enr$MitotreeHaplogroup[enr$SubjectType == "Modern"])
+  save_table(absorb_id, "A_absorption_identifiability.csv")
   print(absorb[, c("sample", "n_individuals", "absorbed_fraction_a_eps",
                    "K_generations", "absorption_rate_per_gen")])
   headline <- absorb[absorb$sample == "enriched_mitotree_modern" &
@@ -379,7 +492,7 @@ run_branching_model <- function() {
   op <- par(mar = c(4.5, 4.8, 3, 1))
   plot(t1$growth_rate, t1$prob_one_descendant * 100, type = "b", pch = 19,
        col = "#264653", lwd = 2, xlab = "Growth ratio m (daughters / mother)",
-       ylab = "P(exactly one descendant at gen 15)  [%]",
+       ylab = sprintf("P(exactly one descendant at gen %d)  [%%]", GW_K),
        main = "Galton-Watson: smallest surviving minor lineage")
   grid(); par(op); dev.off()
 
@@ -408,7 +521,7 @@ run_branching_model <- function() {
   op <- par(mar = c(4.5, 4.8, 3, 1))
   plot(NA, xlim = range(sens$growth_rate), ylim = range(sens$prob_one_descendant * 100),
        xlab = "Growth ratio m (daughters / mother)",
-       ylab = "P(exactly one descendant at gen 15)  [%]",
+       ylab = sprintf("P(exactly one descendant at gen %d)  [%%]", GW_K),
        main = "Sensitivity to offspring law")
   cols <- c(poisson = "#264653", geometric = "#c1121f")
   for (model in unique(sens$offspring_model)) {

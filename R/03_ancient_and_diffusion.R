@@ -42,10 +42,15 @@ coalescence_ages <- function(struct) {
   keep <- c("K1a", "K1a1b", "K1a1b1", "K1a1b1a", "K1a9",
             "K2a", "K2a2a", "N1b", "N1b2")
   s <- struct[struct$Haplogroup %in% keep, ]
+  # Mitotree's TMRCA_95l / TMRCA_95u are named on the *node-age* convention, so
+  # TMRCA_95l holds the numerically LARGER (older) endpoint. Everything here is
+  # reported on a "years before present" axis, so take the bounds by value.
+  lo <- suppressWarnings(as.numeric(s$TMRCA_95l))
+  hi <- suppressWarnings(as.numeric(s$TMRCA_95u))
   data.frame(haplogroup = s$Haplogroup,
              tmrca = suppressWarnings(as.numeric(s$TMRCA)),
-             tmrca_lo = suppressWarnings(as.numeric(s$TMRCA_95l)),
-             tmrca_hi = suppressWarnings(as.numeric(s$TMRCA_95u)),
+             tmrca_lo = pmin(lo, hi),
+             tmrca_hi = pmax(lo, hi),
              ntips = suppressWarnings(as.integer(s$Ntips)))
 }
 
@@ -163,7 +168,7 @@ run_ancient_and_diffusion <- function() {
   ne_cols <- c("super_clade", "haplogroup", "country", "region", "year")
   oldest_ne <- ne[order(ne$year), ne_cols][seq_len(min(12, nrow(ne))), ]
   save_table(oldest_ne, "C_oldest_near_east.csv")
-  k1a1b1a_anc <- anc[grepl("^K1a1b1a", anc$haplogroup), ]
+  k1a1b1a_anc <- anc[grepl("^K1a1b1a", anc$haplogroup), ne_cols]
   save_table(k1a1b1a_anc, "C_k1a1b1a_ancient_footprint.csv")
 
   # ---- C2: coalescence ages ----

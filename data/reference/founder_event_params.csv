@@ -1,4 +1,4 @@
 symbol,description,min,max,selected
-m,Growth ratio per generation,1.075,1.2,1.075
-M0,Founder population size (families),52,300,150
-s0,Lineage extinction ratio,0.81,0.62,0.67
+m,"Effective growth ratio per surviving maternal line per generation. Derived from NET_EXPANSION_TARGET (320x from ~1325 CE to the present) over GW_K=27 generations: 320^(1/27)=1.238. Keep in step with R/utils.R.",1.20,1.28,1.238
+M0,"Founder count: SURVIVING FOUNDER MATRILINES at the bottleneck (not a census of all founding women; Carmi 2014 estimate ~350 effective founders)",52,350,150
+s0,"Lineage extinction ratio (asserted; compare the branching model's own P(extinct), which this duplicates)",0.62,0.81,0.67

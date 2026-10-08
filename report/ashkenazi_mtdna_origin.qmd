@@ -42,8 +42,10 @@ knitr::kable(tab("00_enriched_dedup_summary.csv"))
 
 ## Module A -- Branching-process (founder vs host) model
 
-Galton-Watson lineage extinction: after ~15 generations a founder leaves exactly
-one descendant with ~1% probability (Livni-Skorecki Table 1).
+Galton-Watson lineage extinction: after ~27 generations (the founder event
+dated to ~1325 CE at 26 years per matrilineal generation) a founder leaves
+exactly one descendant with probability below 0.2% across the plausible
+growth range (Livni-Skorecki Table 1).
 
 ```{r A-table1}
 knitr::kable(tab("A_table1_single_descendant.csv"))
@@ -72,17 +74,21 @@ knitr::kable(tab("A_mitotree_founder_summary.csv")[, c(
 )])
 ```
 
-Absorption rates are not estimated from this reference dataset because
-Mitotree/GenBank is not an unbiased Ashkenazi population sample:
+Absorption is estimated from the enriched reference set's singleton fraction
+with the Behar 2006 Ashkenazi sample as the lineage-specific anchor. Note the
+singleton fraction is strongly a function of sample size and clade-label depth
+rather than of absorption (see `A_absorption_identifiability.csv`), so the two
+estimates are comparable only at equal n and equal resolution:
 
-```{r A-note}
-knitr::kable(tab("A_model_identifiability_note.csv"))
+```{r A-absorption-estimate}
+knitr::kable(tab("A_absorption_estimate.csv"))
 ```
 
 ![Founder counts](`r figp("A3_mitotree_founder_frequencies.png")`)
 
 The "Euro-Levantine" reconciliation is model-disfavored under the
-Livni-Skorecki scenario (probability < 0.4% for >=3 major founders), but this is
+Livni-Skorecki scenario (probability about 1.5% for >=3 major founders, or 5.3%
+with a Dirichlet-derived rather than assumed major-frequency probability), but this is
 a model sensitivity result rather than an empirical Mitotree measurement:
 
 ![Euro-Levantine feasibility](`r figp("A6_euro_levantine.png")`)
@@ -138,8 +144,9 @@ knitr::kable(tab("C_coalescence_ages.csv"))
 
 ![Coalescence ages](`r figp("C2_coalescence_ages.png")`)
 
-Frequency-gradient argument: parent signatures peak in the Near East / Anatolia
-(Table 3), which is supportive context but not stand-alone proof:
+Frequency-gradient argument: the K1a and K2a parent signatures peak in the Near
+East / Anatolia (Table 3), which is supportive context but not stand-alone proof
+(K1a1b1 itself is absent from the Middle East, Anatolia and Caucasus rows):
 
 ```{r C-table3}
 knitr::kable(read.csv(file.path(REFERENCE, "table3_parent_freq.csv")))
@@ -151,8 +158,8 @@ knitr::kable(read.csv(file.path(REFERENCE, "table3_parent_freq.csv")))
 
 ## Conclusion
 
-The enriched deduped analysis **leans toward [H2]**, especially for
-K1a/K1a1b1a and K2a/K2a2a, but it should be read as weighted evidence rather
+The enriched deduped analysis **leans toward [H2]** for all four founders,
+most strongly for K1a/K1a1b1a; it should be read as weighted evidence rather
 than definitive proof. Founder clades are present in the enriched dataset, K1a's
 European nesting advantage weakens after sample-size control, published
 non-Jewish rarity remains a benchmark against simple European assimilation, and
@@ -162,7 +169,8 @@ Behar/Costa sample tables.
 ## Limitations
 
 - Mitotree/GenBank is a cross-study reference set, not a random population
-  sample; singleton/doubleton absorption rates are therefore not estimated from it.
+  sample, and its singleton fraction tracks sample size and clade-label depth
+  rather than absorption, so it is not an Ashkenazi-specific estimate.
 - Modern `Country` is diaspora residence, not origin; it is not used as direct
   evidence of origin.
 - The public Mitotree subset is a subset of the full ~330,000 samples.
@@ -179,5 +187,5 @@ autosomal ancestry), Waldman et al. 2022 (Erfurt medieval Ashkenazi carrying
 K1a1b1a/K1a9/N1b2; founder event pre-dating the 14th century), Xue et al. 2017
 (European gene flow predominantly Southern European, in ≥2 events around the
 founder bottleneck), Fernández et al. 2014 (deep Near Eastern Neolithic
-haplogroup K at ~43%), and Pallarés-Viña et al. 2026 (medieval Iberian Jewish
+haplogroup K at 42.8%, 6 of 14 assignable profiles), and Pallarés-Viña et al. 2026 (medieval Iberian Jewish
 K1a1b1a at Tàrrega).

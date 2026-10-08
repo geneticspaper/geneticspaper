@@ -1,36 +1,36 @@
 "clade","expected","region","n_clade","n_total","frequency"
-"H","European control","Europe",5146,14703,0.349996599333469
-"H","European control","North Africa",32,446,0.0717488789237668
-"H","European control","Caucasus",20,102,0.196078431372549
-"H","European control","Middle East",137,1496,0.0915775401069519
+"H","European control","Europe",5140,14654,0.350757472362495
+"H","European control","North Africa",32,449,0.0712694877505568
+"H","European control","Caucasus",26,125,0.208
+"H","European control","Middle East",146,1509,0.096752816434725
 "H","European control","Anatolia",199,711,0.279887482419128
-"H6a1a","ambiguous H6 context","Europe",108,14703,0.00734543970618241
-"H6a1a","ambiguous H6 context","North Africa",0,446,0
-"H6a1a","ambiguous H6 context","Caucasus",0,102,0
-"H6a1a","ambiguous H6 context","Middle East",1,1496,0.000668449197860963
+"H6a1a","ambiguous H6 context","Europe",108,14654,0.00737000136481507
+"H6a1a","ambiguous H6 context","North Africa",0,449,0
+"H6a1a","ambiguous H6 context","Caucasus",0,125,0
+"H6a1a","ambiguous H6 context","Middle East",1,1509,0.000662690523525514
 "H6a1a","ambiguous H6 context","Anatolia",4,711,0.00562587904360056
-"U5","European control","Europe",1264,14703,0.0859688498945793
-"U5","European control","North Africa",5,446,0.0112107623318386
-"U5","European control","Caucasus",0,102,0
-"U5","European control","Middle East",23,1496,0.0153743315508021
+"U5","European control","Europe",1264,14654,0.0862563122696875
+"U5","European control","North Africa",5,449,0.0111358574610245
+"U5","European control","Caucasus",0,125,0
+"U5","European control","Middle East",23,1509,0.0152418820410868
 "U5","European control","Anatolia",19,711,0.0267229254571027
-"J1c","European control","Europe",879,14703,0.0597837176086513
-"J1c","European control","North Africa",6,446,0.0134529147982063
-"J1c","European control","Caucasus",2,102,0.0196078431372549
-"J1c","European control","Middle East",18,1496,0.0120320855614973
+"J1c","European control","Europe",877,14654,0.0598471407124335
+"J1c","European control","North Africa",6,449,0.0133630289532294
+"J1c","European control","Caucasus",4,125,0.032
+"J1c","European control","Middle East",18,1509,0.0119284294234592
 "J1c","European control","Anatolia",14,711,0.019690576652602
-"R0a","Near Eastern control","Europe",38,14703,0.0025845065632864
-"R0a","Near Eastern control","North Africa",12,446,0.0269058295964126
-"R0a","Near Eastern control","Caucasus",0,102,0
-"R0a","Near Eastern control","Middle East",113,1496,0.0755347593582888
+"R0a","Near Eastern control","Europe",38,14654,0.00259314862836086
+"R0a","Near Eastern control","North Africa",12,449,0.0267260579064588
+"R0a","Near Eastern control","Caucasus",0,125,0
+"R0a","Near Eastern control","Middle East",114,1509,0.0755467196819085
 "R0a","Near Eastern control","Anatolia",11,711,0.0154711673699015
-"U7","Near Eastern control","Europe",82,14703,0.00557709311024961
-"U7","Near Eastern control","North Africa",4,446,0.00896860986547085
-"U7","Near Eastern control","Caucasus",11,102,0.107843137254902
-"U7","Near Eastern control","Middle East",121,1496,0.0808823529411765
+"U7","Near Eastern control","Europe",82,14654,0.00559574177698922
+"U7","Near Eastern control","North Africa",4,449,0.0089086859688196
+"U7","Near Eastern control","Caucasus",11,125,0.088
+"U7","Near Eastern control","Middle East",121,1509,0.0801855533465871
 "U7","Near Eastern control","Anatolia",18,711,0.0253164556962025
-"U1","Near Eastern control","Europe",32,14703,0.0021764265796096
-"U1","Near Eastern control","North Africa",0,446,0
-"U1","Near Eastern control","Caucasus",3,102,0.0294117647058824
-"U1","Near Eastern control","Middle East",35,1496,0.0233957219251337
+"U1","Near Eastern control","Europe",29,14654,0.0019789818479596
+"U1","Near Eastern control","North Africa",0,449,0
+"U1","Near Eastern control","Caucasus",7,125,0.056
+"U1","Near Eastern control","Middle East",36,1509,0.0238568588469185
 "U1","Near Eastern control","Anatolia",31,711,0.0436005625879044

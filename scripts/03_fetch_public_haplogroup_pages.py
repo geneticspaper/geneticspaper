@@ -83,6 +83,20 @@ def parse_yfull(raw: str) -> dict[str, str]:
     }
 
 
+FTDNA_FIELDS = (
+    "ftdna_status", "ftdna_formed_mean", "ftdna_formed_95ci", "ftdna_tmrca_mean",
+    "ftdna_tmrca_95ci", "ftdna_children_n", "ftdna_placements_n",
+    "ftdna_modern_country_counts", "ftdna_ancient_codes", "ftdna_ancient_studies",
+    "ftdna_project_counts", "ftdna_variants_n",
+)
+
+
+def _blank_ftdna(status: str) -> dict[str, str]:
+    rec = {f: "" for f in FTDNA_FIELDS}
+    rec["ftdna_status"] = status
+    return rec
+
+
 def parse_ftdna(raw: str) -> dict[str, str]:
     if not raw:
         return {
@@ -102,7 +116,12 @@ def parse_ftdna(raw: str) -> dict[str, str]:
     try:
         data = json.loads(raw)
     except json.JSONDecodeError:
-        return {"ftdna_status": "unparsed_json"}
+        # Must carry every ftdna_* key: the CSV header is built from the first
+        # row, so a 1-key dict here would drop 11 columns for every later row.
+        return _blank_ftdna("unparsed_json")
+
+    def _num(value: object) -> str:
+        return "" if value is None else str(value)
 
     def time_field(kind: str, field: str) -> str:
         value = data.get("time", {}).get(kind, {}).get(field)
@@ -119,7 +138,7 @@ def parse_ftdna(raw: str) -> dict[str, str]:
         count = c.get("count")
         total = c.get("total")
         if name and count is not None:
-            denom = f"/{total}" if total else ""
+            denom = "" if total is None else f"/{total}"
             countries.append(f"{name}:{count}{denom}")
 
     ancient_codes = []
@@ -147,7 +166,8 @@ def parse_ftdna(raw: str) -> dict[str, str]:
         "ftdna_tmrca_mean": time_field("tmrca", "mean"),
         "ftdna_tmrca_95ci": ci("tmrca"),
         "ftdna_children_n": str(len(data.get("descendants", {}).get("children") or [])),
-        "ftdna_placements_n": str(data.get("descendants", {}).get("placements") or ""),
+        # `or ""` would turn a true 0 ("no ancient placements") into "missing".
+        "ftdna_placements_n": _num(data.get("descendants", {}).get("placements")),
         "ftdna_modern_country_counts": ";".join(countries),
         "ftdna_ancient_codes": ";".join(ancient_codes),
         "ftdna_ancient_studies": ";".join(ancient_studies),
@@ -184,7 +204,11 @@ def main() -> None:
         rec.update(parse_ftdna(f_raw))
         out_rows.append(rec)
 
-    fieldnames = list(out_rows[0].keys()) if out_rows else []
+    fieldnames: list[str] = []
+    for r in out_rows:
+        for k in r:
+            if k not in fieldnames:
+                fieldnames.append(k)
     with SUMMARY.open("w", newline="", encoding="utf-8") as fh:
         writer = csv.DictWriter(fh, fieldnames=fieldnames)
         writer.writeheader()

@@ -1,6 +1,6 @@
 "metric","value"
 "mitotree_rows",60705
-"rows_after_genbank_append",60719
+"rows_after_appends",60719
 "deduped_rows",60696
 "unique_accessions",51882
 "behar_flagged",5058

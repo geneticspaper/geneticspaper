@@ -42,7 +42,9 @@ FOUNDER_STRESS <- data.frame(
 EU_CONTROL_STRESS <- data.frame(
   founder  = c("V (V7a2c1b)", "U5a1 (U5a1f1a3)"),
   aadr_sub = c("V", "U5a1"),
-  macro    = c("HV0", "U5"),
+  macro    = c("HV0;V", "U5"),
+  # Ancestral labels sharing no prefix with the sub-clade (see .resolves_subclade).
+  anc_extra = c("HV0;HV", ""),
   stringsAsFactors = FALSE
 )
 
@@ -64,6 +66,55 @@ NE_REGIONS_G <- c("Levant", "Arabia_Mesopotamia", "Anatolia", "Caucasus")
   tail_digit <- substr(hg, nchar(clade) + 1L, nchar(clade) + 1L)
   clade_digit <- grepl("[0-9]$", clade)
   ok & !(hg != clade & clade_digit & grepl("^[0-9]$", tail_digit))
+}
+
+# Some clades are written in AADR under labels that do not share a prefix with
+# the parent clade name, so prefix matching alone would make a sub-clade fall
+# outside its own macro pool (V descends from HV0 but is never written "HV0*").
+# A macro spec may therefore list several labels separated by ";".
+.in_clade_spec <- function(hg, spec) {
+  parts <- trimws(strsplit(as.character(spec), ";", fixed = TRUE)[[1]])
+  parts <- parts[nzchar(parts)]
+  if (!length(parts)) return(rep(FALSE, length(hg)))
+  Reduce(`|`, lapply(parts, function(p) .in_clade(hg, p)))
+}
+
+# Is a record's haplogroup call resolved deeply enough to reveal sub-clade
+# `target` had the individual carried it?
+#
+# Three cases, for target = K1a1b1a:
+#   "K1a1b1a", "K1a1b1a1", "K1a1b1a+16362"  -> a hit, informative
+#   "K1a9", "K2a2a", "H1", "U5"             -> diverges at a resolved position,
+#                                              a genuine informative non-hit
+#   "K", "K1a", "K1a1b1", "K1a+195"         -> ANCESTRAL to the target and so
+#                                              unresolved: the individual could
+#                                              have been K1a1b1a and the call
+#                                              would look identical
+# Only the first two belong in a denominator bounding the target's frequency.
+# Counting the third group as zero-observations would claim information that
+# low-resolution calls do not carry.
+.resolves_subclade <- function(hg, target, anc_extra = character(0)) {
+  hg <- as.character(hg)
+  # Strip extra-mutation / back-mutation / quote-notation suffixes so that
+  # "K1a+195" is judged at its K1a resolution.
+  base <- sub("[+@'].*$", "", hg)
+  hit <- .in_clade(hg, target)
+  # `.in_clade` is written for a vector `hg` against a SCALAR `clade`. Calling
+  # it with a scalar target against a vector of bases silently collapses its
+  # digit-boundary guard (substr returns one element), leaving plain
+  # startsWith, so the ancestry test is evaluated per element instead.
+  ancestral <- base != target &
+    vapply(base, function(b) isTRUE(.in_clade(target, b)), logical(1),
+           USE.NAMES = FALSE)
+  # Some ancestors share no prefix with the target: HV0 and HV are ancestral to
+  # V but are never written "V*", so prefix matching alone would score a record
+  # called HV0 as an informative non-hit when a V carrier could look exactly
+  # like that. Exact membership only -- a label resolved BELOW one of these
+  # (HV0b, HV1a) sits on a different branch and does exclude the target.
+  ancestral <- ancestral | (base %in% anc_extra & !hit)
+  out <- hit | !ancestral
+  out[is.na(hg) | !nzchar(base)] <- FALSE
+  out
 }
 
 # Self-contained reader for a previously written outputs table (module G reads
@@ -90,9 +141,11 @@ load_aadr_mtdna <- function() {
 # (Clopper-Pearson). For k = 0 this is the rule-of-three-style 1 - 0.05^(1/n).
 .binom_upper95 <- function(k, n) {
   if (!is.finite(n) || n <= 0) return(NA_real_)
-  if (k <= 0) return(1 - 0.05^(1 / n))
+  if (k > n) stop("binomial upper bound: k (", k, ") exceeds n (", n, ")")
+  if (k <= 0) return(1 - 0.05^(1 / n))        # = qbeta(0.95, 1, n)
   if (k >= n) return(1)                       # all observed: upper bound is 1
-  stats::qbeta(0.975, k + 1, n - k)
+  # One-sided 95% level, matching the k = 0 branch and the documented level.
+  stats::qbeta(0.95, k + 1, n - k)
 }
 
 # --------------------------------------------------------------------------
@@ -120,7 +173,7 @@ ancient_falsification <- function(info = FOUNDER_STRESS, label = "founder") {
   if (!nrow(aadr)) return(data.frame())
   anc <- aadr[aadr$ancient, ]
   do.call(rbind, lapply(seq_len(nrow(info)), function(i) {
-    macro <- anc[.in_clade(anc$mt_haplogroup, info$macro[i]), ]
+    macro <- anc[.in_clade_spec(anc$mt_haplogroup, info$macro[i]), ]
     sub   <- anc[.in_clade(anc$mt_haplogroup, info$aadr_sub[i]), ]
     eu <- function(d) d[d$region == "Europe" & !d$is_jewish, ]
     ne <- function(d) d[d$region %in% NE_REGIONS_G & !d$is_jewish, ]
@@ -129,6 +182,18 @@ ancient_falsification <- function(info = FOUNDER_STRESS, label = "founder") {
     sub_eu_predia     <- predia(eu(sub))
     n_sub_eu_predia   <- nrow(sub_eu_predia)
     sub_jewish        <- sub[sub$is_jewish, ]
+    # Ascertainment set for an UNCONDITIONAL frequency bound: every
+    # pre-diaspora non-Jewish ancient European record whose call is resolved
+    # deeply enough to have revealed this sub-clade. Records called only at an
+    # ancestral level (K, K1a, K1a1b1) carry no information about it and are
+    # excluded; records in other clades are informative non-hits and are kept.
+    eu_predia_all <- predia(eu(anc))
+    n_eu_predia_resolvable <- sum(
+      .resolves_subclade(eu_predia_all$mt_haplogroup, info$aadr_sub[i],
+                         if ("anc_extra" %in% names(info) && nzchar(info$anc_extra[i]))
+                           trimws(strsplit(info$anc_extra[i], ";", fixed = TRUE)[[1]])
+                         else character(0))
+    )
     # 95% upper bound on the founder's share of the pre-diaspora European macro
     # pool (the frequency Costa's prehistoric-European lineage could have had and
     # still escaped detection).
@@ -140,6 +205,7 @@ ancient_falsification <- function(info = FOUNDER_STRESS, label = "founder") {
       n_sub_jewish = nrow(sub_jewish),
       pct_sub_jewish = if (nrow(sub)) round(100 * nrow(sub_jewish) / nrow(sub), 1) else NA_real_,
       n_macro_eu_predia = n_macro_eu_predia,
+      n_eu_predia_resolvable = n_eu_predia_resolvable,
       n_sub_eu_predia_nonjewish = n_sub_eu_predia,
       n_sub_ne_ancient = nrow(ne(sub)),
       oldest_sub_eu_nonjewish_year = if (n_sub_eu_predia) min(sub_eu_predia$year) else NA_real_,
@@ -147,8 +213,14 @@ ancient_falsification <- function(info = FOUNDER_STRESS, label = "founder") {
       host_share_upper95 = host_share_hi,
       # p-value that a lineage as common in the European host as in Ashkenazim
       # (Costa's model with no drift) would go unseen: (1 - f_ashk)^n_macro.
-      p_costa_no_drift = if ("ashk_pct" %in% names(info) && n_macro_eu_predia > 0)
-        (1 - info$ashk_pct[i] / 100)^n_macro_eu_predia else NA_real_,
+      # (1 - f)^n with f a POPULATION frequency, so n must be the
+      # unconditional resolution-sufficient sample, not the macro-clade count.
+      p_costa_no_drift = if ("ashk_pct" %in% names(info) && n_eu_predia_resolvable > 0)
+        (1 - info$ashk_pct[i] / 100)^n_eu_predia_resolvable else NA_real_,
+      # The probability underflows to exactly 0 in double precision at these n
+      # (K1a1b1a is 10^-760), so report the log as well as the raw value.
+      log10_p_costa_no_drift = if ("ashk_pct" %in% names(info) && n_eu_predia_resolvable > 0)
+        n_eu_predia_resolvable * log10(1 - info$ashk_pct[i] / 100) else NA_real_,
       stringsAsFactors = FALSE
     )
   }))
@@ -168,10 +240,17 @@ host_model_likelihood <- function(info = FOUNDER_STRESS) {
   }, error = function(e) 503L)
   do.call(rbind, lapply(seq_len(nrow(info)), function(i) {
     fr <- fals[fals$founder == info$founder[i], ]
-    anc_eu_n <- if (nrow(fr)) fr$n_macro_eu_predia else 0L
-    # European non-Jewish observations: 1000G EUR (0 founders) + ancient European
-    # pre-diaspora macro carriers (0 founder sub-clade, bar equivocal cases).
+    # Ancient contribution: pre-diaspora non-Jewish ancient Europeans whose call
+    # could have revealed the sub-clade. Previously this was the macro-clade
+    # count, which is a WITHIN-macro denominator and so not on the same scale as
+    # the unconditional 1000G panel it is pooled with.
+    anc_eu_n <- if (nrow(fr)) fr$n_eu_predia_resolvable else 0L
     k_eu <- if (nrow(fr)) fr$n_sub_eu_predia_nonjewish else 0L
+    # Reported separately as well as pooled: pooling a present-day panel with a
+    # record spanning millennia assumes the frequency was constant over that
+    # span, which is an assumption, not a measurement.
+    f_hi_modern  <- .binom_upper95(0L, eur_n)
+    f_hi_ancient <- .binom_upper95(k_eu, anc_eu_n)
     n_eu <- eur_n + anc_eu_n
     f_hi_eu <- .binom_upper95(k_eu, n_eu)
     f_ashk <- info$ashk_pct[i] / 100
@@ -192,6 +271,8 @@ host_model_likelihood <- function(info = FOUNDER_STRESS) {
       eur_panel_n = eur_n, ancient_eu_predia_n = anc_eu_n,
       european_nonjewish_n = n_eu, european_nonjewish_obs = k_eu,
       european_host_freq_upper95 = f_hi_eu,
+      host_freq_upper95_modern_1kg = f_hi_modern,
+      host_freq_upper95_ancient = f_hi_ancient,
       ashkenazi_freq = f_ashk,
       broad_nonjewish_freq_t7 = f_t7,
       founder_effect_enrichment_needed = enrichment,
@@ -215,9 +296,13 @@ adversarial_prior_sensitivity <- function() {
                              (1 - pmin(pmax(p, 1e-9), 1 - 1e-9)))
   eta <- logit(p0)
   # Adversarial prior expressed as European:NE prior odds; delta = -log(odds).
+  # Applied to the reported posterior mean (the only quantity in the summary
+  # table), so these are shifted means, not the means of the shifted model.
   at <- function(odds) plogis(eta - log(odds))
   data.frame(
-    founder = id, posterior_flat_prior = round(p0, 3),
+    # The baseline is the fitted model's posterior mean. The logistic has a
+    # free, fitted intercept, so it is NOT a flat-prior (0.5-centred) baseline.
+    founder = id, posterior_fitted = round(p0, 3),
     post_prior_2to1_european = round(at(2), 3),
     post_prior_4to1_european = round(at(4), 3),
     post_prior_9to1_european = round(at(9), 3),
@@ -354,7 +439,7 @@ run_origin_stress_tests <- function() {
     cols <- c("#c1121f", "#e5793a", "#264653", "#2a9d8f")
     logit <- function(p) log(p / (1 - p))
     for (i in seq_len(nrow(adv))) {
-      e <- logit(pmin(pmax(adv$posterior_flat_prior[i], 1e-6), 1 - 1e-6))
+      e <- logit(pmin(pmax(adv$posterior_fitted[i], 1e-6), 1 - 1e-6))
       lines(odds, plogis(e - log(odds)), col = cols[(i - 1) %% 4 + 1], lwd = 2)
     }
     abline(h = 0.5, lty = 2, col = "grey50"); abline(v = 1, lty = 3, col = "grey60")

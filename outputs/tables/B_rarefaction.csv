@@ -1,143 +1,143 @@
-"root","region","n","distinct_lineages","pool_size"
-"K1a","Europe",1,1,402
-"K1a","Europe",4,3.945,402
-"K1a","Europe",6,5.85,402
-"K1a","Europe",9,8.67,402
-"K1a","Europe",12,11.35,402
-"K1a","Europe",14,13.225,402
-"K1a","Europe",17,15.84,402
-"K1a","Europe",19,17.39,402
-"K1a","Europe",22,19.95,402
-"K1a","Europe",25,22.36,402
-"K1a","Europe",27,23.99,402
-"K1a","Europe",30,26.17,402
-"K1a","Europe",32,27.78,402
-"K1a","Europe",35,30.075,402
-"K1a","Europe",38,32.41,402
-"K1a","Europe",40,34.05,402
-"K1a","Europe",43,36.26,402
-"K1a","Europe",46,38.17,402
-"K1a","Europe",48,39.63,402
-"K1a","Europe",51,41.42,402
-"K1a","Europe",54,43.715,402
-"K1a","Europe",56,45.41,402
-"K1a","Europe",59,46.96,402
-"K1a","Europe",61,48.165,402
-"K1a","Europe",64,50.345,402
-"K1a","Near East",1,1,64
-"K1a","Near East",4,3.96,64
-"K1a","Near East",6,5.91,64
-"K1a","Near East",9,8.835,64
-"K1a","Near East",12,11.63,64
-"K1a","Near East",14,13.505,64
-"K1a","Near East",17,16.225,64
-"K1a","Near East",19,18.085,64
-"K1a","Near East",22,20.795,64
-"K1a","Near East",25,23.585,64
-"K1a","Near East",27,25.11,64
-"K1a","Near East",30,27.69,64
-"K1a","Near East",32,29.34,64
-"K1a","Near East",35,31.86,64
-"K1a","Near East",38,34.42,64
-"K1a","Near East",40,36.015,64
-"K1a","Near East",43,38.265,64
-"K1a","Near East",46,40.735,64
-"K1a","Near East",48,42.27,64
-"K1a","Near East",51,44.465,64
-"K1a","Near East",54,46.755,64
-"K1a","Near East",56,48.225,64
-"K1a","Near East",59,50.485,64
-"K1a","Near East",61,51.835,64
-"K1a","Near East",64,54,64
-"K2a","Europe",1,1,69
-"K2a","Europe",2,1.945,69
-"K2a","Europe",3,2.86,69
-"K2a","Europe",4,3.795,69
-"K2a","Europe",5,4.51,69
-"K2a","Europe",6,5.54,69
-"K2a","Europe",7,6.315,69
-"K2a","Europe",8,7.04,69
-"K2a","Europe",9,7.98,69
-"K2a","Europe",10,8.57,69
-"K2a","Europe",11,9.34,69
-"K2a","Europe",12,9.815,69
-"K2a","Europe",13,10.475,69
-"K2a","Europe",14,11.245,69
-"K2a","Europe",15,11.925,69
-"K2a","Europe",16,12.56,69
-"K2a","Europe",17,13.055,69
-"K2a","Europe",18,13.67,69
-"K2a","Europe",19,14.215,69
-"K2a","Europe",20,14.85,69
-"K2a","Europe",21,15.145,69
-"K2a","Near East",1,1,21
-"K2a","Near East",2,1.755,21
-"K2a","Near East",3,2.31,21
-"K2a","Near East",4,2.72,21
-"K2a","Near East",5,3.04,21
-"K2a","Near East",6,3.37,21
-"K2a","Near East",7,3.645,21
-"K2a","Near East",8,3.86,21
-"K2a","Near East",9,4.11,21
-"K2a","Near East",10,4.435,21
-"K2a","Near East",11,4.56,21
-"K2a","Near East",12,4.655,21
-"K2a","Near East",13,5.125,21
-"K2a","Near East",14,5.36,21
-"K2a","Near East",15,5.5,21
-"K2a","Near East",16,5.805,21
-"K2a","Near East",17,5.985,21
-"K2a","Near East",18,6.325,21
-"K2a","Near East",19,6.565,21
-"K2a","Near East",20,6.785,21
-"K2a","Near East",21,7,21
-"N1b","Europe",1,1,32
-"N1b","Europe",2,1.98,32
-"N1b","Europe",3,2.94,32
-"N1b","Europe",4,3.93,32
-"N1b","Europe",6,5.79,32
-"N1b","Europe",7,6.74,32
-"N1b","Europe",8,7.7,32
-"N1b","Europe",9,8.58,32
-"N1b","Europe",10,9.475,32
-"N1b","Europe",12,11.21,32
-"N1b","Europe",13,12.175,32
-"N1b","Europe",14,12.965,32
-"N1b","Europe",15,13.835,32
-"N1b","Europe",16,14.645,32
-"N1b","Europe",17,15.64,32
-"N1b","Europe",18,16.39,32
-"N1b","Europe",20,18.17,32
-"N1b","Europe",21,18.965,32
-"N1b","Europe",22,19.61,32
-"N1b","Europe",23,20.545,32
-"N1b","Europe",24,21.41,32
-"N1b","Europe",26,23.08,32
-"N1b","Europe",27,23.83,32
-"N1b","Europe",28,24.645,32
-"N1b","Europe",29,25.505,32
-"N1b","Near East",1,1,29
-"N1b","Near East",2,1.965,29
-"N1b","Near East",3,2.965,29
-"N1b","Near East",4,3.89,29
-"N1b","Near East",6,5.665,29
-"N1b","Near East",7,6.6,29
-"N1b","Near East",8,7.41,29
-"N1b","Near East",9,8.35,29
-"N1b","Near East",10,9.15,29
-"N1b","Near East",12,10.785,29
-"N1b","Near East",13,11.5,29
-"N1b","Near East",14,12.275,29
-"N1b","Near East",15,13.105,29
-"N1b","Near East",16,13.76,29
-"N1b","Near East",17,14.575,29
-"N1b","Near East",18,15.265,29
-"N1b","Near East",20,16.47,29
-"N1b","Near East",21,17.265,29
-"N1b","Near East",22,17.865,29
-"N1b","Near East",23,18.435,29
-"N1b","Near East",24,19.045,29
-"N1b","Near East",26,20.315,29
-"N1b","Near East",27,20.84,29
-"N1b","Near East",28,21.405,29
-"N1b","Near East",29,22,29
+"root","region","n","distinct_lineages","se","pool_size","statistic"
+"K1a","Europe",1,0.999999999999913,NA,400,"names"
+"K1a","Europe",4,3.93963185465753,NA,400,"names"
+"K1a","Europe",6,5.8512975628845,NA,400,"names"
+"K1a","Europe",9,8.65085025108467,NA,400,"names"
+"K1a","Europe",12,11.3735500678378,NA,400,"names"
+"K1a","Europe",15,14.0243056344391,NA,400,"names"
+"K1a","Europe",18,16.6076613375402,NA,400,"names"
+"K1a","Europe",20,18.2945449034601,NA,400,"names"
+"K1a","Europe",23,20.7747622184378,NA,400,"names"
+"K1a","Europe",26,23.1981180699785,NA,400,"names"
+"K1a","Europe",28,24.7838019995042,NA,400,"names"
+"K1a","Europe",31,27.119878979193,NA,400,"names"
+"K1a","Europe",34,29.4076810183177,NA,400,"names"
+"K1a","Europe",37,31.6500026297857,NA,400,"names"
+"K1a","Europe",40,33.8494334325452,NA,400,"names"
+"K1a","Europe",42,35.2930851218566,NA,400,"names"
+"K1a","Europe",45,37.4262785572085,NA,400,"names"
+"K1a","Europe",48,39.5226005296121,NA,400,"names"
+"K1a","Europe",50,40.9006400252428,NA,400,"names"
+"K1a","Europe",53,42.9398031647681,NA,400,"names"
+"K1a","Europe",56,44.9470230859878,NA,400,"names"
+"K1a","Europe",59,46.9239108530808,NA,400,"names"
+"K1a","Europe",62,48.8719636215233,NA,400,"names"
+"K1a","Europe",64,50.1553375418465,NA,400,"names"
+"K1a","Europe",67,52.0583772972127,1.15521707501417,400,"names"
+"K1a","Near East",1,1,NA,67,"names"
+"K1a","Near East",4,3.96751904811601,NA,67,"names"
+"K1a","Near East",6,5.9190063667676,NA,67,"names"
+"K1a","Near East",9,8.80636676756064,NA,67,"names"
+"K1a","Near East",12,11.6463834672791,NA,67,"names"
+"K1a","Near East",15,14.4396200814113,NA,67,"names"
+"K1a","Near East",18,17.1866402254464,NA,67,"names"
+"K1a","Near East",20,18.9925895000521,NA,67,"names"
+"K1a","Near East",23,21.66383467279,NA,67,"names"
+"K1a","Near East",26,24.2903663500679,NA,67,"names"
+"K1a","Near East",28,26.0168249660786,NA,67,"names"
+"K1a","Near East",31,28.570086629788,NA,67,"names"
+"K1a","Near East",34,31.0801377726752,NA,67,"names"
+"K1a","Near East",37,33.5475420102286,NA,67,"names"
+"K1a","Near East",40,35.9728629579376,NA,67,"names"
+"K1a","Near East",42,37.5666423129109,NA,67,"names"
+"K1a","Near East",45,39.923076923077,NA,67,"names"
+"K1a","Near East",48,42.2389312180357,NA,67,"names"
+"K1a","Near East",50,43.7605677904186,NA,67,"names"
+"K1a","Near East",53,46.0100407055631,NA,67,"names"
+"K1a","Near East",56,48.2204362801377,NA,67,"names"
+"K1a","Near East",59,50.3923181296316,NA,67,"names"
+"K1a","Near East",62,52.5262498695335,NA,67,"names"
+"K1a","Near East",64,53.9280659638869,NA,67,"names"
+"K1a","Near East",67,56,3.0494987056711,67,"names"
+"K2a","Europe",1,1.00000000000001,NA,69,"names"
+"K2a","Europe",2,1.96121057118492,NA,69,"names"
+"K2a","Europe",3,2.88601748291789,NA,69,"names"
+"K2a","Europe",4,3.77667347984566,NA,69,"names"
+"K2a","Europe",5,4.63530406558236,NA,69,"names"
+"K2a","Europe",6,5.4639131112141,NA,69,"names"
+"K2a","Europe",7,6.26438829140476,NA,69,"names"
+"K2a","Europe",8,7.03850635088463,NA,69,"names"
+"K2a","Europe",9,7.78793820410228,NA,69,"names"
+"K2a","Europe",10,8.51425387081906,NA,69,"names"
+"K2a","Europe",11,9.21892725042894,NA,69,"names"
+"K2a","Europe",12,9.90334073778268,NA,69,"names"
+"K2a","Europe",13,10.5687896832971,NA,69,"names"
+"K2a","Europe",14,11.2164867001309,NA,69,"names"
+"K2a","Europe",15,11.8475658212076,NA,69,"names"
+"K2a","Europe",16,12.4630865088646,NA,69,"names"
+"K2a","Europe",17,13.0640375199104,NA,69,"names"
+"K2a","Europe",18,13.6513406288714,NA,69,"names"
+"K2a","Europe",19,14.2258542122076,NA,69,"names"
+"K2a","Europe",20,14.7883766962765,NA,69,"names"
+"K2a","Europe",21,15.3396498718291,0.857717135938699,69,"names"
+"K2a","Near East",1,1,NA,21,"names"
+"K2a","Near East",2,1.73333333333333,NA,21,"names"
+"K2a","Near East",3,2.28421052631578,NA,21,"names"
+"K2a","Near East",4,2.71345029239765,NA,21,"names"
+"K2a","Near East",5,3.06398348813209,NA,21,"names"
+"K2a","Near East",6,3.36532507739937,NA,21,"names"
+"K2a","Near East",7,3.63715170278638,NA,21,"names"
+"K2a","Near East",8,3.89211263452749,NA,21,"names"
+"K2a","Near East",9,4.13799203892083,NA,21,"names"
+"K2a","Near East",10,4.37933067964028,NA,21,"names"
+"K2a","Near East",11,4.61860533687159,NA,21,"names"
+"K2a","Near East",12,4.85705440070765,NA,21,"names"
+"K2a","Near East",13,5.09522826674529,NA,21,"names"
+"K2a","Near East",14,5.33333333333333,NA,21,"names"
+"K2a","Near East",15,5.57142857142857,NA,21,"names"
+"K2a","Near East",16,5.80952380952381,NA,21,"names"
+"K2a","Near East",17,6.04761904761905,NA,21,"names"
+"K2a","Near East",18,6.28571428571428,NA,21,"names"
+"K2a","Near East",19,6.52380952380952,NA,21,"names"
+"K2a","Near East",20,6.76190476190476,NA,21,"names"
+"K2a","Near East",21,7,1.42937101683202,21,"names"
+"N1b","Europe",1,1,NA,32,"names"
+"N1b","Europe",2,1.98588709677424,NA,32,"names"
+"N1b","Europe",3,2.95846774193553,NA,32,"names"
+"N1b","Europe",4,3.91852057842055,NA,32,"names"
+"N1b","Europe",6,5.80401835372634,NA,32,"names"
+"N1b","Europe",7,6.73088153503897,NA,32,"names"
+"N1b","Europe",8,7.64805339265867,NA,32,"names"
+"N1b","Europe",9,8.55617352614013,NA,32,"names"
+"N1b","Europe",10,9.4558537263626,NA,32,"names"
+"N1b","Europe",12,11.2322024471635,NA,32,"names"
+"N1b","Europe",13,12.1099555061179,NA,32,"names"
+"N1b","Europe",14,12.981437708565,NA,32,"names"
+"N1b","Europe",15,13.8471218020022,NA,32,"names"
+"N1b","Europe",16,14.7074527252503,NA,32,"names"
+"N1b","Europe",17,15.5628476084539,NA,32,"names"
+"N1b","Europe",18,16.4136957730812,NA,32,"names"
+"N1b","Europe",20,18.103170189099,NA,32,"names"
+"N1b","Europe",21,18.9424360400445,NA,32,"names"
+"N1b","Europe",22,19.7784343715239,NA,32,"names"
+"N1b","Europe",23,20.6114154616241,NA,32,"names"
+"N1b","Europe",24,21.4416017797553,NA,32,"names"
+"N1b","Europe",26,23.0943409343715,NA,32,"names"
+"N1b","Europe",27,23.9171996662959,NA,32,"names"
+"N1b","Europe",28,24.7378754171302,NA,32,"names"
+"N1b","Europe",29,25.5564516129032,1.89253639568711,32,"names"
+"N1b","Near East",1,1,NA,29,"names"
+"N1b","Near East",2,1.98029556650247,NA,29,"names"
+"N1b","Near East",3,2.94116037219487,NA,29,"names"
+"N1b","Near East",4,3.88286808976461,NA,29,"names"
+"N1b","Near East",6,5.70990695128629,NA,29,"names"
+"N1b","Near East",7,6.59578544061302,NA,29,"names"
+"N1b","Near East",8,7.46360153256707,NA,29,"names"
+"N1b","Near East",9,8.31362889983581,NA,29,"names"
+"N1b","Near East",10,9.14614121510676,NA,29,"names"
+"N1b","Near East",12,10.759715380405,NA,29,"names"
+"N1b","Near East",13,11.5413245758074,NA,29,"names"
+"N1b","Near East",14,12.3065134099617,NA,29,"names"
+"N1b","Near East",15,13.0555555555556,NA,29,"names"
+"N1b","Near East",16,13.7887246852764,NA,29,"names"
+"N1b","Near East",17,14.5062944718117,NA,29,"names"
+"N1b","Near East",18,15.208538587849,NA,29,"names"
+"N1b","Near East",20,16.568144499179,NA,29,"names"
+"N1b","Near East",21,17.2260536398467,NA,29,"names"
+"N1b","Near East",22,17.8697318007663,NA,29,"names"
+"N1b","Near East",23,18.4994526546251,NA,29,"names"
+"N1b","Near East",24,19.1154898741106,NA,29,"names"
+"N1b","Near East",26,20.3076081007116,NA,29,"names"
+"N1b","Near East",27,20.884236453202,NA,29,"names"
+"N1b","Near East",28,21.448275862069,NA,29,"names"
+"N1b","Near East",29,22,1.90994626543317,29,"names"

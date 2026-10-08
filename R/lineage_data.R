@@ -38,7 +38,14 @@ MACRO_ROOT <- c(
   L2a1l2a = "L2a", M1a1b1c = "M1a", M33c3 = "M33", N9a3a1b1 = "N9a3",
   "A-a1b3a1" = "A",
   HV1b2 = "HV1b", R0a = "R0a", U7a5 = "U7", U1b1a1 = "U1",
-  H7 = "H", H6a1a1a = "H6", J1c7a = "J1c"
+  H7 = "H", H6a1a1a = "H6", J1c7a = "J1c",
+  # Costa (2013) published-origin calibration lineages. These must be listed
+  # explicitly: `infer_macro_root`'s fallback returns the lineage itself for any
+  # key that is a tree node, so without an entry here the "macro" background
+  # collapses onto the lineage and the Mitchell-2014 macro channel drops out.
+  # Kept in step with the same map in scripts/compute_1kg_eu_freq.py.
+  H1 = "H", H3 = "H", H5 = "H", HV1a = "HV1",
+  T2 = "T2", W = "W", I = "I", U4 = "U4", K1a4a = "K1a4"
 )
 
 NON_EUROPE_REGIONS <- setdiff(
@@ -96,16 +103,23 @@ infer_macro_root <- function(lineage_key, node = NULL) {
   ctx <- .lineage_context()
   topo <- ctx$topo
   if (is.null(node)) node <- resolve_mitotree_node(lineage_key)$node
-  cur <- node
+  # Walk up to the first ancestor that is a tree node. The membership test must
+  # come AFTER a parent step, or a lineage that is itself a node returns itself
+  # and no walk ever happens.
+  cur <- .parent_up(node, topo)
   for (i in seq_len(8L)) {
-    if (!is.na(cur) && cur %in% topo$nodes) return(cur)
-    nxt <- .parent_up(cur, topo)
-    if (is.na(nxt)) break
-    cur <- nxt
+    if (is.na(cur)) break
+    if (cur %in% topo$nodes) return(cur)
+    cur <- .parent_up(cur, topo)
   }
-  for (L in seq(min(4L, nchar(lineage_key)), 3L)) {
-    p <- substr(lineage_key, 1L, L)
-    if (p %in% topo$nodes) return(p)
+  # Name-prefix fallback, specific -> coarse. Guarded so a key shorter than 3
+  # characters does not turn the sequence around and try coarse -> specific.
+  hi <- min(4L, nchar(lineage_key))
+  if (hi >= 3L) {
+    for (L in hi:3L) {
+      p <- substr(lineage_key, 1L, L)
+      if (p %in% topo$nodes) return(p)
+    }
   }
   lineage_key
 }
@@ -119,7 +133,16 @@ lineage_sample_mask <- function(lineage_key, node = NULL) {
     return(samples$MitotreeHaplogroup %in% desc)
   }
   # No tree node: match haplogroup strings that start with the lineage key.
-  startsWith(samples$MitotreeHaplogroup, lineage_key)
+  # Respect mtDNA name boundaries -- a subclade name continues with the opposite
+  # token type, so a digit right after a digit-ending key names a sibling, not a
+  # descendant (H1 must not capture H10/H11).
+  hg <- samples$MitotreeHaplogroup
+  ok <- !is.na(hg) & startsWith(hg, lineage_key)
+  nxt <- substr(hg, nchar(lineage_key) + 1L, nchar(lineage_key) + 1L)
+  if (grepl("[0-9]$", lineage_key)) {
+    ok <- ok & !(hg != lineage_key & grepl("^[0-9]$", nxt))
+  }
+  ok
 }
 
 FOUNDER_KEYS <- c("K1a1b1a", "K1a9", "K2a2a", "N1b2")
@@ -286,7 +309,23 @@ macro_europe_fraction <- function(macro_root) {
       as.character(modern$region) == "Europe",
     na.rm = TRUE
   )
-  nj / ctx$n_modern
+  # The numerator counts European non-Jews, so the denominator must be the
+  # European non-Jewish modern pool (~14.7k), NOT every modern sample worldwide.
+  # Dividing by ctx$n_modern would put this estimator on a different scale from
+  # the 1000G and Mitchell-2014 frequencies it is compared and `min()`-ed with
+  # in `.nonjew_frequency_detail` -- see `.mitotree_macro_nonjew_freq`, which
+  # computes the same kind of quantity on the correct denominator.
+  all_modern <- ctx$samples[ctx$samples$SubjectType == "Modern", ]
+  denom <- sum(
+    !(all_modern$in_jewish_study %in% c(TRUE, "TRUE")) &
+      as.character(all_modern$region) == "Europe",
+    na.rm = TRUE
+  )
+  if (!denom) return(NA_real_)
+  # Same Jeffreys-style floor the two sibling estimators use, so an absent
+  # lineage stays readable on the log-rarity scale instead of being a literal 0.
+  if (nj == 0L) return(0.5 / (denom + 1))
+  nj / denom
 }
 
 # Frequency of a lineage's MACRO background among European non-Jews in the large
@@ -347,13 +386,47 @@ ref_frequency <- function(lineage_key, node = NULL) {
   .ref_frequency_detail(lineage_key, node)$freq
 }
 
+# Jewish ancient carriers of a clade in the AADR compilation, used where the
+# Mitotree public ancient subset does not carry the label. Prefix matching
+# respects mtDNA name boundaries (a digit after a digit-ending clade names a
+# sibling, not a descendant).
+.count_jewish_ancients_aadr <- function(clades) {
+  p <- file.path(ROOT, "data", "external", "aadr_mtdna.csv")
+  if (!file.exists(p)) return(0L)
+  d <- tryCatch(read.csv(p, stringsAsFactors = FALSE), error = function(e) NULL)
+  if (is.null(d) || !nrow(d)) return(0L)
+  yr_all <- suppressWarnings(as.numeric(d$year))
+  d <- d[as.integer(d$is_jewish) %in% 1L &
+           (is.na(yr_all) | yr_all <= MEDIEVAL_MAX_YEAR) &
+           is.finite(suppressWarnings(as.numeric(d$date_bp))) &
+           suppressWarnings(as.numeric(d$date_bp)) > 50, , drop = FALSE]
+  if (!nrow(d)) return(0L)
+  hg <- as.character(d$mt_haplogroup)
+  hit <- rep(FALSE, length(hg))
+  for (cl in clades[nzchar(clades)]) {
+    ok <- !is.na(hg) & startsWith(hg, cl)
+    nxt <- substr(hg, nchar(cl) + 1L, nchar(cl) + 1L)
+    if (grepl("[0-9]$", cl)) ok <- ok & !(hg != cl & grepl("^[0-9]$", nxt))
+    hit <- hit | ok
+  }
+  sum(hit)
+}
+
+# Latest calendar year that still counts as a historical (pre-modern) anchor.
+# The channel exists to show a lineage was already in the Jewish maternal pool
+# before the modern era, so 20th-century individuals carry no such evidence:
+# without this cutoff K2a2a scored two "medieval" carriers that were in fact
+# Sobibor Holocaust victims born in 1913 and 1923 (Diepenbroek 2021).
+MEDIEVAL_MAX_YEAR <- 1800
+
 .count_jewish_ancients <- function(mask) {
   ctx <- .lineage_context()
   anc <- ctx$samples[mask & ctx$samples$SubjectType == "Ancient", , drop = FALSE]
   if (!nrow(anc)) return(0L)
   jew <- anc$in_jewish_study %in% c(TRUE, "TRUE") |
     grepl(JEWISH_ANCIENT_STUDIES, anc$Study, ignore.case = TRUE)
-  sum(jew, na.rm = TRUE)
+  yr <- suppressWarnings(as.numeric(anc$AgeEstimateMean))
+  sum(jew & (is.na(yr) | yr <= MEDIEVAL_MAX_YEAR), na.rm = TRUE)
 }
 
 # Historical N1b2 (Behar/Costa/23andMe) = N1b1b1 on FTDNA/Brook. Mitotree's ancient
@@ -367,15 +440,20 @@ ref_frequency <- function(lineage_key, node = NULL) {
 medieval_jewish_carriers <- function(lineage_key, node = NULL) {
   if (is.null(node)) node <- resolve_mitotree_node(lineage_key)$node
   n <- .count_jewish_ancients(lineage_sample_mask(lineage_key, node))
-  if (lineage_key != "N1b2") return(n)
-  for (alias in setdiff(.n1b2_alias_keys(), "N1b2")) {
+  keys <- if (lineage_key == "N1b2") .n1b2_alias_keys() else lineage_key
+  for (alias in setdiff(keys, lineage_key)) {
     alias_node <- resolve_mitotree_node(alias)$node
     if (!is.na(alias_node)) {
       n <- max(n, .count_jewish_ancients(lineage_sample_mask(alias, alias_node)))
     }
   }
-  if (n == 0L) n <- 1L  # Waldman 2022 Erfurt medieval Jewish N1b1b1 carrier
-  n
+  # Mitotree's public ancient subset carries the medieval Jewish individuals
+  # unevenly -- it has the Erfurt K1a1b1a carriers but none of the K1a9 or
+  # N1b1b1 ones -- so the count would otherwise depend on which lineage happened
+  # to be included rather than on the record. Take the fuller of the two
+  # sources for every lineage so the channel is measured the same way across
+  # them, instead of hard-setting any single lineage's number.
+  max(n, .count_jewish_ancients_aadr(keys))
 }
 
 lineage_ne_depth_kyr <- function(lineage_key, node = NULL, present_year = 1950L) {
@@ -418,17 +496,37 @@ oldest_ne_depth_kyr <- function(macro_root, present_year = 1950L) {
   (present_year - min(anc$AgeEstimateMean, na.rm = TRUE)) / 1000
 }
 
-.rarefy_once <- function(root, regions, reps = 100L, seed = 1L) {
+.rarefy_once <- function(root, regions, reps = 100L, seed = 1L,
+                         exclude_clade = NULL) {
   ctx <- .lineage_context()
   tryCatch(
     rarefy_sublineages(ctx$samples, ctx$topo, root,
-                       regions = regions, reps = reps, seed = seed),
+                       regions = regions, reps = reps, seed = seed,
+                       exclude_clade = exclude_clade),
     error = function(e) data.frame()
   )
 }
 
+# Smallest regional pool a nesting value may rest on. Below this the equal-n
+# comparison is being made at an n of a handful of samples, which is noise with
+# a decisive-looking sign, so the channel is reported as NA and imputed neutral
+# rather than being allowed to dominate the synthesis.
+NEST_MIN_POOL <- 10L
+
+# (Unused: the climb is bounded by the declared macro background instead, which
+# is the principled frame. Kept only to document why. ) Without any bound, a lineage
+# whose macro root equals the lineage itself has its whole root clade removed by
+# `exclude_clade` and climbs until something is big enough: W, N9a3a1b1 and
+# A-a1b3a1 all ended at node N+8701 with ~13,000 European and ~1,950 Near
+# Eastern samples, so three unrelated panel lineages received the same
+# macrohaplogroup-N number, which then set the location and scale of z_nest for
+# the whole panel. Beyond this bound the comparison is no longer about the
+# lineage, so the channel reports NA instead.
+NEST_MAX_POOL <- 2000L
+
 .rarefy_at_root <- function(root, mode = c("ne_eu", "noneu_eu"),
-                           min_pool = 5L, max_up = 8L) {
+                           min_pool = NEST_MIN_POOL, max_up = 8L,
+                           exclude_clade = NULL, ceiling_root = NULL) {
   mode <- match.arg(mode)
   ctx <- .lineage_context()
   regions <- if (mode == "ne_eu") {
@@ -439,8 +537,14 @@ oldest_ne_depth_kyr <- function(macro_root, present_year = 1950L) {
   try_root <- root
   best <- NULL
   for (attempt in seq_len(max_up)) {
-    r <- .rarefy_once(try_root, regions)
-    if (!nrow(r)) {
+    r <- .rarefy_once(try_root, regions, exclude_clade = exclude_clade)
+    if (is.null(r) || !nrow(r)) {
+      # Same macro-background ceiling as below. This branch is the one that
+      # fires when excluding the focal clade empties its own root entirely
+      # (W, R0a and the other lineages whose macro root IS the lineage), so
+      # without the check here they climb away regardless.
+      if (!is.null(ceiling_root) && !is.na(ceiling_root) &&
+          identical(try_root, ceiling_root)) break
       parent <- .parent_up(try_root, ctx$topo)
       if (is.na(parent)) break
       try_root <- parent
@@ -453,6 +557,12 @@ oldest_ne_depth_kyr <- function(macro_root, present_year = 1950L) {
     neg_pool_val <- if ("Europe" %in% names(pools)) pools[["Europe"]] else NA_real_
     if (is.finite(pos_pool_val) && is.finite(neg_pool_val) &&
         pos_pool_val >= min_pool && neg_pool_val >= min_pool) break
+    # Never climb above the declared macro background: that is the frame this
+    # lineage is defined against, and beyond it the comparison is about some
+    # unrelated broader clade. W, N9a3a1b1 and A-a1b3a1 otherwise all ended at
+    # node N+8701 and received the same macrohaplogroup-N number.
+    if (!is.null(ceiling_root) && !is.na(ceiling_root) &&
+        identical(try_root, ceiling_root)) break
     parent <- .parent_up(try_root, ctx$topo)
     if (is.na(parent) || parent == try_root) break
     try_root <- parent
@@ -461,6 +571,7 @@ oldest_ne_depth_kyr <- function(macro_root, present_year = 1950L) {
     return(list(
       root_used = ifelse(length(try_root) && nzchar(try_root), try_root, root),
       pos_richness = NA_real_, neg_richness = NA_real_,
+      pos_se = NA_real_, neg_se = NA_real_,
       pos_pool = NA_real_, neg_pool = NA_real_, ne_richness = NA_real_,
       eu_richness = NA_real_, ne_pool = NA_real_, eu_pool = NA_real_,
       noneu_richness = NA_real_
@@ -481,9 +592,16 @@ oldest_ne_depth_kyr <- function(macro_root, present_year = 1950L) {
   }
   pos_r <- getv(pos_lab, "distinct_lineages")
   neg_r <- getv("Europe", "distinct_lineages")
+  pos_se <- if ("se" %in% names(w)) getv(pos_lab, "se") else NA_real_
+  neg_se <- if ("se" %in% names(w)) getv("Europe", "se") else NA_real_
   list(
-    root_used = try_root,
+    # Report the root that actually produced `best`, not `try_root`: the climb
+    # loop keeps advancing `try_root` after recording `best`, so on a loop that
+    # ends by exhausting max_up (or on an empty rarefaction at the next level)
+    # `try_root` is one level above the clade these richness numbers came from.
+    root_used = as.character(best$root[1]),
     pos_richness = pos_r, neg_richness = neg_r,
+    pos_se = pos_se, neg_se = neg_se,
     pos_pool = pos_pool, neg_pool = neg_pool,
     ne_richness = if (mode == "ne_eu") pos_r else NA_real_,
     eu_richness = neg_r,
@@ -506,7 +624,17 @@ compute_lineage_inputs <- function(lineage_key,
       !is.na(rarefy_root)) {
     rr_root <- rarefy_root
   }
-  rr <- .rarefy_at_root(rr_root, mode = nesting_mode)
+  # The lineage's own carriers are excluded from both pools: nesting asks where
+  # its SISTER lineages come from.
+  # Exclude the lineage itself AND any sibling founder sharing its root clade:
+  # leaving K1a1b1a's carriers in the pool while scoring K1a9 is the same
+  # circularity one step removed.
+  excl <- unique(c(node, vapply(setdiff(FOUNDER_KEYS, lineage_key),
+                                function(k) resolve_mitotree_node(k)$node,
+                                character(1))))
+  excl <- excl[!is.na(excl)]
+  rr <- .rarefy_at_root(rr_root, mode = nesting_mode, exclude_clade = excl,
+                        ceiling_root = macro_root)
   macro_eu_frac <- macro_europe_fraction(macro_root)
   sub_nj <- .nonjew_freq_mitotree(lineage_key, node)
   kg_d <- .kg1_clade_freq_detail(lineage_key)
@@ -539,6 +667,8 @@ compute_lineage_inputs <- function(lineage_key,
     neg_richness = rr$neg_richness,
     pos_pool = rr$pos_pool,
     neg_pool = rr$neg_pool,
+    pos_se = rr$pos_se,
+    neg_se = rr$neg_se,
     modern_count = sum(lineage_sample_mask(lineage_key, node) &
                          .lineage_context()$samples$SubjectType == "Modern"),
     data_complete = !is.na(node) | sum(lineage_sample_mask(lineage_key, node)) > 0,
@@ -566,14 +696,9 @@ compute_lineage_inputs_batch <- function(lineage_keys,
       rarefy_root = rarefy_roots[i]
     )
   }))
-  fr <- out$ref_freq
-  rng <- diff(range(fr, na.rm = TRUE))
-  out$founder_strength <- if (is.finite(rng) && rng > 0) {
-    (fr - min(fr, na.rm = TRUE)) / rng
-  } else {
-    rep(0.5, nrow(out))
-  }
-  out$founder_strength[is.na(fr)] <- NA_real_
+  # (A `founder_strength` min-max rescale of ref_freq used to be added here. It
+  # was normalised over whichever batch happened to be passed, so the same
+  # lineage got a different value depending on the call, and nothing read it.)
   out
 }
 
@@ -584,14 +709,34 @@ compute_lineage_inputs_batch <- function(lineage_keys,
 nesting_fraction <- function(row) {
   if (!is.na(row$noneu_richness)) {
     pos <- row$noneu_richness; neg <- row$eu_richness
+    pos_pool <- row$pos_pool
   } else {
     pos <- row$ne_richness; neg <- row$eu_richness
+    pos_pool <- row$ne_pool
   }
-  pos <- if (is.na(pos)) 0 else pos
-  neg <- if (is.na(neg)) 0 else neg
+  neg_pool <- row$eu_pool
+  pos_se <- if ("pos_se" %in% names(row)) row$pos_se else NA_real_
+  neg_se <- if ("neg_se" %in% names(row)) row$neg_se else NA_real_
+  # An equal-n comparison is only as good as its smaller pool. A MISSING pool
+  # must also return NA: the earlier guard was skipped when a pool was NA rather
+  # than 0, and `pos` was then coerced to 0, so a lineage with no Near Eastern
+  # samples anywhere up its spine scored (0 - neg)/(0 + neg) = -1, the strongest
+  # possible European signal, instead of "not measurable".
+  if (is.na(pos_pool) || is.na(neg_pool) || is.na(pos) || is.na(neg) ||
+      min(pos_pool, neg_pool) < NEST_MIN_POOL) {
+    return(NA_real_)
+  }
   den <- pos + neg
   if (den == 0) return(0)
-  (pos - neg) / den
+  frac <- (pos - neg) / den
+  # Shrink toward zero by the channel's own uncertainty, so a near-tie does not
+  # enter the synthesis with the same weight as a clear separation. Smooth,
+  # bounded, and a no-op when |frac| is large relative to its SE.
+  if (!is.na(pos_se) && !is.na(neg_se)) {
+    se <- 2 / den^2 * sqrt(neg^2 * pos_se^2 + pos^2 * neg_se^2)
+    if (is.finite(se) && se > 0) frac <- frac * frac^2 / (frac^2 + se^2)
+  }
+  frac
 }
 
 nesting_channels <- function(row) {

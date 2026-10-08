@@ -9,9 +9,9 @@ It combines the Livni-Skorecki branching-process / founder-vs-host model framewo
 
 ## Summary
 
-Four maternal founder lineages -- K1a1b1a, K1a9, K2a2a, and N1b2 -- account for roughly 40% of Ashkenazi Jewish mtDNA, but their geographic origin is disputed between a prehistoric European-assimilation model and a Near Eastern / Levantine-origin model. This report reimplements the Livni-Skorecki branching-process and founder-versus-host framework and combines it with phylogeographic rarefaction, non-Jewish rarity, ancient DNA, and a regularized origin synthesis over a deduplicated Mitotree/GenBank reference set.
+Four maternal founder lineages -- K1a1b1a, K1a9, K2a2a, and N1b2 -- account for roughly 38% of Ashkenazi Jewish mtDNA, but their geographic origin is disputed between a prehistoric European-assimilation model and a Near Eastern / Levantine-origin model. This report reimplements the Livni-Skorecki branching-process and founder-versus-host framework and combines it with phylogeographic rarefaction, non-Jewish rarity, ancient DNA, and a regularized origin synthesis over a deduplicated Mitotree/GenBank reference set.
 
-Five analyses favor a Near Eastern origin. The estimated host-lineage absorption rate places all four founders in the multi-copy founder tail rather than among absorbed singletons; the founders are rare among 27,651 non-Jews; Costa’s “solely European nesting” argument weakens after equal-sample-size rarefaction; the K and N parent macro-clades have deep Near Eastern ancient-DNA context and the founder clades occur in medieval Jewish individuals; and the ridge-logistic synthesis assigns every founder a probability above 0.5 for Near Eastern origin. Support is strongest for K2a2a (0.996) and the K1a founders (K1a1b1a 0.956; K1a9 0.946), and positive but more tentative for N1b2 (0.743). The result favors a Near Eastern origin for all four founders under these data, while recognizing that mtDNA alone cannot establish geographic origin with autosomal-level certainty.
+Five analyses favor a Near Eastern origin. The estimated absorbed host-lineage fraction places all four founders in the multi-copy founder tail rather than among absorbed singletons; the founders are rare among 27,651 non-Jews; Costa's "solely European nesting" argument weakens after equal-sample-size rarefaction; the K and N parent macro-clades have deep Near Eastern ancient-DNA context and the founder clades occur in medieval Jewish individuals; and the ridge-logistic synthesis places every founder above 0.5 for Near Eastern origin. Support is strongest for K1a9 (0.994) and most tentative for N1b2 (0.891), whose sister lineages remain Europe-richer at equal sample size.
 
 ## Data Set
 
@@ -20,7 +20,7 @@ The analysis set is built from Mitotree S1, enriched with GenBank founder-query 
 | metric | value |
 | --- | --- |
 | mitotree_rows | 60705 |
-| rows_after_genbank_append | 60719 |
+| rows_after_appends | 60719 |
 | deduped_rows | 60696 |
 | unique_accessions | 51882 |
 | behar_flagged |  5058 |
@@ -50,13 +50,13 @@ The framework is constrained to satisfy several requirements simultaneously: it 
 
 The pipeline represents Mitotree topology as a parent map and child adjacency list. Descendant sets are obtained by depth-first traversal and used consistently for founder counts, regional parent-clade counts, ancient-record extraction, rarefaction, and control panels. Deduplication by accession and sample key occurs before these analyses so records present through both Mitotree and GenBank enrichment are not counted twice.
 
-Finite-time Galton-Watson descendant distributions are calculated by composing offspring probability-generating functions. Their coefficients are recovered by evaluating the composed function on roots of unity and applying an inverse FFT. An independent direct polynomial-convolution implementation validates this calculation: the largest discrepancy across the reported growth grid is below 4e-7, negligible relative to model uncertainty.
+Finite-time Galton-Watson descendant distributions are calculated by composing offspring probability-generating functions. Their coefficients are recovered by evaluating the composed function on roots of unity and applying an inverse FFT. An independent direct polynomial-convolution implementation validates this calculation: the largest discrepancy across the reported growth grid is below 1e-4, negligible relative to model uncertainty.
 
-Rarefaction evaluates the Costa nesting claim using expected descendant-lineage richness after sampling Europe and the Near East without replacement to the same sample size. The origin synthesis then standardizes three data-computed channels -- non-Jewish rarity, antiquity/time, and equal-sample-size nesting -- and fits a ridge-logistic model to labeled controls while holding the founders out. Coefficient uncertainty is propagated by Laplace-approximation Monte Carlo, and leave-one-out validation on the labeled panel checks whether the fitted model generalizes beyond individual controls.
+Rarefaction evaluates the Costa nesting claim using expected descendant-lineage richness after sampling Europe and the Near East without replacement to the same sample size. For the per-lineage nesting channel the focal lineage's own descendants -- and those of any sibling founder sharing its root clade -- are excluded from both regional pools, so the comparison is between its *sister* lineages: a lineage's own carriers are not evidence about which regional variation it nests inside, and because they concentrate on a few named nodes they would otherwise depress the measured richness of whichever region they are most common in. The comparison root climbs to a parent clade until both sister pools reach at least 10 samples, and the root actually used is reported for each lineage. The origin synthesis then standardizes three data-computed channels -- non-Jewish rarity, antiquity/time, and equal-sample-size nesting -- and fits a ridge-logistic model to labeled controls while holding the founders out. Coefficient uncertainty is propagated by Laplace-approximation Monte Carlo, and leave-one-out validation on the labeled panel checks whether the fitted model generalizes beyond individual controls.
 
 ## Public YFull and FTDNA Enrichment
 
-YFull and FamilyTreeDNA Discover provide public context for the modeled haplogroups: alternative nomenclature, branch ages, public sample identifiers, country tags, ancient connections, and project counts. Across the 26 modeled lineages, YFull static pages were available for 26 and FTDNA's public JSON endpoint for 25 (U1b1a1 resolves through its public parent U1b1; A-a1b3a1 sits below macro-A on FTDNA). The public branch age adjusts the time channel only for lineages that also carry a Jewish or ancient anchor, so the European calibration lineages enter with no public-age bonus.
+YFull and FamilyTreeDNA Discover provide public context for the modeled haplogroups: alternative nomenclature, branch ages, public sample identifiers, country tags, ancient connections, and project counts. Public pages were compiled for 26 lineages (K1a4a has none): YFull static pages were available for 26 and FTDNA's public JSON endpoint for 25 (U1b1a1 resolves through its public parent U1b1; A-a1b3a1 sits below macro-A on FTDNA). The public branch age adjusts the time channel only for lineages that also carry a Jewish or ancient anchor, so the European calibration lineages enter with no public-age bonus.
 
 These data are not treated as an unbiased population-frequency sample: YFull and FTDNA are genealogical/testing databases with strong participation and project-enrollment effects. The model therefore does not use their tester country proportions as population frequencies. It does use the least sample-sensitive fields to make the time channel more realistic: supported aliases, public branch/TMRCA estimates, and public ancient-sample links. Very shallow public TMRCA estimates modestly penalize the time channel; mature public branch ages modestly strengthen it only when paired with an existing Jewish/ancient anchor.
 
@@ -124,7 +124,7 @@ This paper is unusually direct on our question. It reports that Ashkenazi Jews s
 It is also the strongest honesty check in this report, and it cuts both ways:
 
 - **For H2 (Near Eastern), at the haplogroup level:** deep, high-frequency Near Eastern K plus rare N* is consistent with a Near Eastern maternal source for the K/N macro-clades.
-- **Against over-claiming at the sub-clade level:** the PPNB K samples were typed only on HVR1 and lack the diagnostic control-region mutations of K1a1b1a and K2a2a, so those specific founder sub-clades (~79% of Ashkenazi K) are *excluded* from these particular Neolithic individuals; only K1a9 (~20%) cannot be excluded without coding-region typing.
+- **Against over-claiming at the sub-clade level:** the PPNB K samples were typed only on HVR1 and lack the diagnostic control-region mutations of K1a1b1a and K2a2a, so those specific founder sub-clades (~81% of Ashkenazi K) are *excluded* from these particular Neolithic individuals; only K1a9 (~19%) cannot be excluded without coding-region typing.
 - **Symmetric caveat:** the authors note lineage loss/drift in the Near East since the Neolithic, so absence of the derived founder sub-clades in this small aDNA panel is not proof of their past absence either.
 
 PPNB haplogroup composition (counts from the recovered HVR1 profiles; Fernández 2014 Table 1):
@@ -169,16 +169,22 @@ The first realism upgrade is now included as a sensitivity analysis: the Galton-
 
 | offspring_model | growth_rate | prob_extinct | prob_one_descendant | prob_ge_three_descendants |
 | --- | --- | --- | --- | --- |
-| poisson |     1 | 0.8873 | 0.01058 | 0.09121 |
-| poisson | 1.025 | 0.8642 | 0.01042 | 0.1145 |
-| poisson |  1.05 | 0.8392 | 0.009943 | 0.1402 |
-| poisson | 1.075 | 0.8129 | 0.009225 | 0.1678 |
-| poisson |   1.1 | 0.7856 | 0.008337 | 0.1968 |
-| geometric |     1 | 0.9375 | 0.003906 | 0.05493 |
-| geometric | 1.025 | 0.9253 | 0.003856 | 0.06722 |
-| geometric |  1.05 | 0.9121 | 0.003715 | 0.0806 |
-| geometric | 1.075 | 0.8982 | 0.0035 | 0.09488 |
-| geometric |   1.1 | 0.8838 | 0.003232 | 0.1098 |
+| poisson |   1.1 | 0.8137 | 0.001912 | 0.1822 |
+| poisson |  1.15 | 0.7476 | 0.0009495 | 0.2503 |
+| poisson |   1.2 | 0.6852 | 0.0004085 | 0.3139 |
+| poisson | 1.238 | 0.6412 | 0.0002013 | 0.3583 |
+| poisson |  1.28 | 0.5968 | 0.00008896 | 0.403 |
+| poisson |   1.3 | 0.5769 | 0.00005949 | 0.4229 |
+| poisson |  1.35 | 0.5307 | 0.00002125 | 0.4693 |
+| poisson |   1.4 | 0.489 | 0.000007408 | 0.511 |
+| geometric |   1.1 | 0.9023 | 0.0007278 | 0.09623 |
+| geometric |  1.15 | 0.8669 | 0.0004069 | 0.1323 |
+| geometric |   1.2 | 0.8323 | 0.0002047 | 0.1673 |
+| geometric | 1.238 | 0.8071 | 0.0001162 | 0.1926 |
+| geometric |  1.28 | 0.781 | 0.00006111 | 0.2188 |
+| geometric |   1.3 | 0.7691 | 0.00004471 | 0.2308 |
+| geometric |  1.35 | 0.7407 | 0.00002035 | 0.2593 |
+| geometric |   1.4 | 0.7143 | 0.000009257 | 0.2857 |
 
 ![Sensitivity of single-descendant probability to offspring law.](../outputs/figures/A2b_offspring_law_sensitivity.png)
 
@@ -192,24 +198,24 @@ The Poisson-vs-geometric contrast above is only the two extremes of a single axi
 
 | offspring_law | nb_size | growth_rate | var_mean_ratio | prob_extinct | prob_one_descendant | prob_ge_three_descendants |
 | --- | --- | --- | --- | --- | --- | --- |
-| NB(size=0.5) |   0.5 |     1 |     3 | 0.9565 | 0.00216 | 0.0394 |
-| NB(size=1) |     1 |     1 |     2 | 0.9375 | 0.003906 | 0.05493 |
-| NB(size=2) |     2 |     1 |   1.5 | 0.9198 | 0.005929 | 0.06854 |
-| NB(size=5) |     5 |     1 |   1.2 | 0.9031 | 0.008169 | 0.08056 |
-| NB(size=20) |    20 |     1 |  1.05 | 0.8918 | 0.009878 | 0.0883 |
-| Poisson (size=Inf) |   Inf |     1 |     1 | 0.8873 | 0.01058 | 0.09121 |
-| NB(size=0.5) |   0.5 |  1.05 |   3.1 | 0.9393 | 0.002063 | 0.0568 |
-| NB(size=1) |     1 |  1.05 |  2.05 | 0.9121 | 0.003715 | 0.0806 |
-| NB(size=2) |     2 |  1.05 | 1.525 | 0.8865 | 0.005615 | 0.1022 |
-| NB(size=5) |     5 |  1.05 |  1.21 | 0.8623 | 0.007705 | 0.122 |
-| NB(size=20) |    20 |  1.05 | 1.052 | 0.8457 | 0.009291 | 0.1352 |
-| Poisson (size=Inf) |   Inf |  1.05 |     1 | 0.8392 | 0.009943 | 0.1402 |
-| NB(size=0.5) |   0.5 |   1.1 |   3.2 |  0.92 | 0.001819 | 0.07648 |
-| NB(size=1) |     1 |   1.1 |   2.1 | 0.8838 | 0.003232 | 0.1098 |
-| NB(size=2) |     2 |   1.1 |  1.55 | 0.8495 | 0.004826 | 0.1408 |
-| NB(size=5) |     5 |   1.1 |  1.22 | 0.8168 | 0.006541 | 0.1697 |
-| NB(size=20) |    20 |   1.1 | 1.055 | 0.7944 | 0.007818 | 0.1892 |
-| Poisson (size=Inf) |   Inf |   1.1 |     1 | 0.7856 | 0.008337 | 0.1968 |
+| NB(size=0.5) |   0.5 |  1.15 |   3.3 | 0.9096 | 0.0002378 | 0.08993 |
+| NB(size=1) |     1 |  1.15 |  2.15 | 0.8669 | 0.0004077 | 0.1323 |
+| NB(size=2) |     2 |  1.15 | 1.575 | 0.8257 | 0.0005895 | 0.1731 |
+| NB(size=5) |     5 |  1.15 |  1.23 | 0.786 | 0.0007726 | 0.2124 |
+| NB(size=20) |    20 |  1.15 | 1.058 | 0.7584 | 0.0008999 | 0.2396 |
+| Poisson (size=Inf) |   Inf |  1.15 |     1 | 0.7476 | 0.0009495 | 0.2503 |
+| NB(size=0.5) |   0.5 |   1.2 |   3.4 | 0.8858 | 0.0001244 | 0.114 |
+| NB(size=1) |     1 |   1.2 |   2.2 | 0.8323 | 0.0002047 | 0.1673 |
+| NB(size=2) |     2 |   1.2 |   1.6 | 0.7811 | 0.0002819 | 0.2183 |
+| NB(size=5) |     5 |   1.2 |  1.24 | 0.7321 | 0.0003508 | 0.2671 |
+| NB(size=20) |    20 |   1.2 |  1.06 | 0.6984 | 0.0003932 | 0.3007 |
+| Poisson (size=Inf) |   Inf |   1.2 |     1 | 0.6852 | 0.0004085 | 0.3139 |
+| NB(size=0.5) |   0.5 |  1.28 |  3.56 | 0.8499 | 0.00004091 |  0.15 |
+| NB(size=1) |     1 |  1.28 |  2.28 | 0.781 | 0.00006111 | 0.2188 |
+| NB(size=2) |     2 |  1.28 |  1.64 | 0.716 | 0.00007617 | 0.2838 |
+| NB(size=5) |     5 |  1.28 | 1.256 | 0.6547 | 0.00008536 | 0.3452 |
+| NB(size=20) |    20 |  1.28 | 1.064 | 0.613 | 0.00008846 | 0.3868 |
+| Poisson (size=Inf) |   Inf |  1.28 |     1 | 0.5968 | 0.00008896 | 0.403 |
 
 ![Single-descendant probability across the negative-binomial size ladder (geometric = 1, Poisson = infinity).](../outputs/figures/D1_nbinom_size.png)
 
@@ -219,30 +225,42 @@ The Poisson-vs-geometric contrast above is only the two extremes of a single axi
 
 A single constant growth ratio is demographically unrealistic. The Ashkenazi matriline was close to stationary through the medieval founder phase and then expanded rapidly. We encode this as a piecewise per-generation schedule and compare it against a constant-growth process with the **same net expansion** (same expected surviving-lineage size), so any difference is attributable purely to the *timing* of growth:
 
-| generation | phase | growth_ratio |
-| --- | --- | --- |
-|     1 | bottleneck |  0.98 |
-|     2 | bottleneck |  0.98 |
-|     3 | bottleneck |  0.98 |
-|     4 | bottleneck |  0.98 |
-|     5 | bottleneck |  0.98 |
-|     6 | steady |   1.1 |
-|     7 | steady |   1.1 |
-|     8 | steady |   1.1 |
-|     9 | steady |   1.1 |
-|    10 | steady |   1.1 |
-|    11 | expansion |  1.28 |
-|    12 | expansion |  1.28 |
-|    13 | expansion |  1.28 |
-|    14 | expansion |  1.28 |
-|    15 | expansion |  1.28 |
+| generation | year | phase | growth_ratio |
+| --- | --- | --- | --- |
+|     1 |  1323 | medieval_stasis | 1.001 |
+|     2 |  1349 | medieval_stasis | 1.001 |
+|     3 |  1375 | medieval_stasis | 1.001 |
+|     4 |  1401 | medieval_stasis | 1.001 |
+|     5 |  1427 | medieval_stasis | 1.001 |
+|     6 |  1453 | medieval_stasis | 1.001 |
+|     7 |  1479 | medieval_stasis | 1.001 |
+|     8 |  1505 | early_modern | 1.361 |
+|     9 |  1531 | early_modern | 1.361 |
+|    10 |  1557 | early_modern | 1.361 |
+|    11 |  1583 | early_modern | 1.361 |
+|    12 |  1609 | early_modern | 1.361 |
+|    13 |  1635 | early_modern | 1.361 |
+|    14 |  1661 | early_modern | 1.361 |
+|    15 |  1687 | early_modern | 1.361 |
+|    16 |  1713 | early_modern | 1.361 |
+|    17 |  1739 | early_modern | 1.361 |
+|    18 |  1765 | great_expansion | 1.561 |
+|    19 |  1791 | great_expansion | 1.561 |
+|    20 |  1817 | great_expansion | 1.561 |
+|    21 |  1843 | great_expansion | 1.561 |
+|    22 |  1869 | great_expansion | 1.561 |
+|    23 |  1895 | great_expansion | 1.561 |
+|    24 |  1921 | modern | 1.001 |
+|    25 |  1947 | modern | 1.001 |
+|    26 |  1973 | modern | 1.001 |
+|    27 |  1999 | modern | 1.001 |
 
-With net expansion held identical (~5.0x over 15 generations), the realistic bottleneck-then-expansion schedule *raises* extinction (84.9% vs 77.1%) and *lowers* the singleton probability (0.30% vs 0.78%) relative to constant growth. Early stasis prunes more lineages, and rapid late expansion means the survivors are carried in many copies rather than as singletons. This does not weaken the founder-vs-host argument -- it sharpens it: under realistic history a genuine founder is even less likely to appear as a lone singleton.
+With net expansion held identical (~320.0x over 27 generations), the calendar-anchored bottleneck-then-expansion schedule *raises* extinction (82.5% vs 64.1%) and *lowers* the singleton probability (0.00% vs 0.02%) relative to constant growth. Early stasis prunes more lineages, and rapid late expansion means the survivors are carried in many copies rather than as singletons. This does not weaken the founder-vs-host argument -- it sharpens it: under realistic history a genuine founder is even less likely to appear as a lone singleton.
 
 | model | net_expansion | mean_growth_ratio | prob_extinct | prob_one_descendant | prob_ge_three_descendants |
 | --- | --- | --- | --- | --- | --- |
-| constant (matched net growth) | 5.002 | 1.113 | 0.7709 | 0.007823 | 0.2125 |
-| piecewise (bottleneck->expansion) | 5.002 | 1.113 | 0.8488 | 0.003004 | 0.1446 |
+| constant (matched net growth) |   320 | 1.238 | 0.6413 | 0.0002014 | 0.3583 |
+| piecewise (bottleneck->expansion) |   320 | 1.238 | 0.8253 | 0.00003949 | 0.1746 |
 
 ![Piecewise historical growth vs a constant-growth process matched on net expansion.](../outputs/figures/D2_piecewise_growth.png)
 
@@ -258,47 +276,47 @@ The Bayesian synthesis combines three **data-computed** evidence channels into o
 2. **Z-score** rarity, time (depth + carriers + public age), and nesting fraction across all scored lineages.
 3. **Fit a ridge-logistic model** to labeled controls only (European = 0; Near Eastern / non-European diaspora = 1). Founders are held out. Coefficient uncertainty is propagated by Laplace-approximation Monte Carlo. Leave-one-out validation on the labeled panel guards against overfitting.
 
-Leave-one-out validation classifies **20 of 21 labeled lineages correctly (95%)**. Fitted channel weights (Gaussian priors, integrated out):
+Leave-one-out validation classifies **18 of 21 labeled lineages correctly (86%)**. Fitted channel weights (Gaussian priors, integrated out):
 
 | channel | posterior weight |
 | --- | --- |
-| intercept | 0.78 [-0.70, 2.27] |
-| frequency (non-Jewish rarity) | 2.65 [0.64, 4.78] |
-| time (antiquity + carriers + public age) | 1.48 [0.13, 3.45] |
-| nesting (equal-n richness) | 2.30 [0.40, 4.47] |
+| intercept | 0.55 [-0.71, 1.82] |
+| frequency (non-Jewish rarity) | 3.31 [1.29, 5.35] |
+| time (antiquity + carriers + public age) | 1.54 [0.15, 3.51] |
+| nesting (equal-n richness) | 1.17 [0.14, 2.48] |
 
 Per-founder computed inputs:
 
 | founder | root | nonjew_freq | ne_depth_kyr | medieval_jewish_carriers | public_tmrca_kyr | public_age_confidence | public_jewish_ancient_anchor | ne_richness_equal_n | eu_richness_equal_n | ne_pool | eu_pool |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| K1a1b1a | K1a | 0.000615 |  10.7 |     8 | 2.304 |     1 |     1 |    54 | 49.97 |    64 |   402 |
-| K1a9 | K1a | 0.000217 |  10.7 | 0 | 2.934 | 0.8761 |     1 |    54 | 49.97 |    64 |   402 |
-| K2a2a | K2a | 0.000434 |    NA |     2 | 4.252 | 0.8166 |     1 |  3.04 |     1 |    20 |     5 |
-| N1b2 | N1b | 0.000253 |  8.35 |     1 | 6.428 | 0.8521 | 0 |    22 | 25.67 |    29 |    32 |
+| K1a1b1a | K1a | 0.000615 |  10.7 |    13 | 2.304 |     1 |     1 | 42.44 | 29.85 |    67 |   371 |
+| K1a9 | K1a | 0.000217 |  10.7 |     4 | 2.934 | 0.8761 |     1 | 42.44 | 29.85 |    67 |   371 |
+| K2a2a | K2a | 0.000434 |    NA | 0 | 4.252 | 0.8166 |     1 |     1 |     1 |     1 |    64 |
+| N1b2 | N1b | 0.000253 |  8.35 |     1 | 6.428 | 0.8521 | 0 | 13.26 | 15.06 |    28 |    32 |
 
 Standardized channel values for founders:
 
 | founder | rarity | nest_frac | z_freq | z_time | z_nest |
 | --- | --- | --- | --- | --- | --- |
-| K1a1b1a | 0.2104 | 0.03876 | 0.5659 | 1.971 | -0.1143 |
-| K1a9 | 0.6615 | 0.03876 | 0.9208 | 0.7259 | -0.1143 |
-| K2a2a | 0.3615 | 0.505 | 0.6745 | 0.4176 | 3.389 |
-| N1b2 | 0.5952 | -0.07699 | 0.7916 | 0.8147 | -0.9842 |
+| K1a1b1a | 0.2104 | 0.06897 | 0.5659 | 1.956 | 1.087 |
+| K1a9 | 0.6615 | 0.06897 | 0.9208 | 1.859 | 1.087 |
+| K2a2a | 0.3615 |    NA | 0.6745 | -0.05464 | 0 |
+| N1b2 | 0.5952 | -0.001596 | 0.7916 | 0.2299 | -0.6449 |
 
 Posterior P(H2) per founder (held out of the fit), with 90% credible intervals:
 
 | founder | post_mean_H2 | post_lo | post_med | post_hi |
 | --- | --- | --- | --- | --- |
-| K1a1b1a | 0.9564 | 0.7888 | 0.9905 | 0.9999 |
-| K1a9 | 0.9456 | 0.7592 | 0.9815 | 0.9992 |
-| K2a2a | 0.9962 | 0.9849 |     1 |     1 |
-| N1b2 | 0.7434 | 0.163 | 0.8567 | 0.9954 |
+| K1a1b1a | 0.9877 | 0.9413 | 0.9983 |     1 |
+| K1a9 | 0.9939 | 0.9731 | 0.9994 |     1 |
+| K2a2a | 0.899 | 0.6703 | 0.9367 | 0.9909 |
+| N1b2 | 0.8913 | 0.6075 | 0.9408 | 0.994 |
 
 ![Origin synthesis: founders (red), European controls (blue), deep non-European controls (green); 90% credible intervals from the single fitted logistic on standardized data channels.](../outputs/figures/D3_bayes_origin.png)
 
 *Origin synthesis: founders (red), European controls (blue), deep non-European controls (green); 90% credible intervals from the single fitted logistic on standardized data channels.*
 
-All four founders remain above 0.5 (K1a1b1a 0.956, K1a9 0.946, K2a2a 0.996, N1b2 0.743, the last counted as a single lineage with its FTDNA-tree synonym N1b1b1). N1b2's interval is the widest among the founders because its equal-sample-size nesting in the N1b macro-clade leans European in the public Mitotree subset, and nesting is the most heavily weighted channel, so it tempers N1b2's positive rarity and time channels; K2a2a, whose K2 nesting is Near-East-rich, scores highest (0.996) but we report three decimal places because rounding would overstate certainty.
+All four founders sit above 0.5 (K1a1b1a 0.988, K1a9 0.994, K2a2a 0.899, N1b2 0.891, the last counted as a single lineage with its FTDNA-tree synonym N1b1b1). N1b2's interval is the widest because nesting is a negative contributor for it: at the N1b macro background its sister lineages stay Europe-richer at equal sample size, tempering its positive rarity and time channels. K2a2a rests on the narrowest base -- excluding its own carriers leaves a single Near Eastern sister sample within K2a, so its comparison climbs to K where sister richness is near parity, and its score comes mainly from rarity and medieval Jewish carriers. We report three decimal places because rounding would overstate certainty.
 
 ### Negative controls: European (absorbed) Ashkenazi lineages
 
@@ -310,7 +328,7 @@ A synthesis that scored every Ashkenazi lineage as Levantine would not be inform
 - in the same subclade it is **shared with non-Jewish Europeans** (Danish KF162774, Russian JQ703830, a Berlin and a Belarusian sample), so the near-absence-among-non-Jews signal that flags the founders is absent; and
 - it has no deep Near Eastern ancient record and no medieval Jewish (Erfurt/Tàrrega) carrier.
 
-We do **not** rely on a "too young" argument, because the age of this branch is itself uncertain: YFull dates the tight subclade to ~100 years, whereas FTDNA's Discover tool (which names the same branch V7a12a1) suggests a TMRCA around 350 CE (~1,675 years). Either way, coalescence age alone does not indicate a Near Eastern origin -- and crucially, granting V7a2c1b even a Roman-era age does not move it toward H2, because its European signal comes from nesting, non-Jewish V frequency (3.0%), and shared non-Jewish European records.
+We do **not** rely on a "too young" argument, because the age of this branch is itself uncertain: YFull dates the tight subclade to ~100 years, whereas FTDNA's Discover tool (which names the same branch V7a12a1) suggests a TMRCA around 371 BCE (95% CI 696-66 BCE; ~2,375 years). Either way, coalescence age alone does not indicate a Near Eastern origin -- and crucially, granting V7a2c1b even a Roman-era age does not move it toward H2, because its European signal comes from nesting, non-Jewish V frequency (3.0%), and shared non-Jewish European records.
 
 **Control 2: U5a1f1a3.** Haplogroup U5 is the signature European Mesolithic hunter-gatherer lineage: it dominates pre-Neolithic Europe and is essentially *absent* from the Pre-Pottery Neolithic Near East (Fernández 2014 find K, not U5, in PPNB farmers). Any Ashkenazi U5 lineage is therefore European by deep phylogeography, and because U5 is common in modern non-Jewish Europeans its non-Jewish-rarity signal is strongly negative -- the opposite of a founder. It supplies an independent European control with a *different* origin story (Paleolithic hunter-gatherer versus post-glacial V), guarding against the objection that the V7a2c1b result is a one-off.
 
@@ -318,10 +336,10 @@ Fed through the same standardized channels and fitted logistic posterior:
 
 | founder | lineage | nonjew_freq | rarity | depth_kyr | carriers | pub_adj | nest_frac | z_freq | z_time | z_nest | post_mean_H2 | post_lo | post_med | post_hi |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| U5a1f1a3 (control) | U5a1f1a3 | 0.04175 | -1.621 | 2.964 | 0 | -0.1301 | -0.02742 | -0.9208 | -1.145 | -0.6117 | 0.02503 | 0.0004958 | 0.00925 | 0.1025 |
-| V7a2c1b (control) | V7a2c1b | 0.02982 | -1.475 | 0 |     1 | 0 | 0.01885 | -0.5659 | -0.3961 | -0.264 | 0.1668 | 0.02705 | 0.1297 | 0.4361 |
+| U5a1f1a3 (control) | U5a1f1a3 | 0.04175 | -1.621 | 4.676 | 0 | -0.1301 | -0.002138 | -0.9208 | -1.164 | -0.6583 |  0.02 | 0.000343 | 0.006799 | 0.08373 |
+| V7a2c1b (control) | V7a2c1b | 0.02982 | -1.475 | 0 | 0 | 0 |    NA | -0.5659 | -0.6922 | 0 | 0.1184 | 0.01528 | 0.08541 | 0.3371 |
 
-European controls score far below the founders (V7a2c1b **0.17 [0.03, 0.44]**, U5a1f1a3 **0.03 [0.00, 0.10]** vs founder range **0.74–1.00**). These two established Ashkenazi maternal lineages of recognized European origin are common among European non-Jews (subclade-resolved 1000 Genomes European frequencies, n=503), which places them near parity rather than in the founder tail.
+European controls score far below the founders (V7a2c1b **0.12 [0.02, 0.34]**, U5a1f1a3 **0.02 [0.00, 0.08]** vs founder range **0.89–0.99**). These two established Ashkenazi maternal lineages of recognized European origin are common among European non-Jews (subclade-resolved 1000 Genomes European frequencies, n=503), which places them outside the founder tail.
 
 (The controls appear as the blue triangles in the posterior figure above; the four founders are the circles.)
 
@@ -333,40 +351,40 @@ We run these through the **identical** synthesis with the same data-computed cha
 
 | lineage | deep origin | Ashkenazi % | medieval Erfurt | posterior P(H2-side) |
 | --- | --- | --- | --- | --- |
-| A-a1b3a1 | East Asian / Siberian (macrohaplogroup A) |  0.06 | -- | 0.84 [0.32, 1.00] |
-| L2a1l2a | Sub-Saharan / East African (L2) |   2.2 | I13865 (Erfurt-ME) | 0.98 [0.91, 1.00] |
-| M1a1b1c | North African / Near Eastern back-migration (M1) |  0.31 | -- | 0.95 [0.74, 1.00] |
-| M33c3 | South Asian (M33) |  0.34 | -- | 0.99 [0.98, 1.00] |
-| N9a3a1b1 | East Asian / Central Eurasian (N9a) |  0.52 | I14740 (Erfurt-EU) | 0.93 [0.61, 1.00] |
+| A-a1b3a1 | East Asian / Siberian (macrohaplogroup A) |  0.06 | -- | 0.79 [0.28, 1.00] |
+| L2a1l2a | Sub-Saharan / East African (L2) |   2.2 | I13865 (Erfurt-ME) | 0.99 [0.95, 1.00] |
+| M1a1b1c | North African / Near Eastern back-migration (M1) |  0.31 | -- | 0.98 [0.88, 1.00] |
+| M33c3 | South Asian (M33) |  0.34 | -- | 0.96 [0.78, 1.00] |
+| N9a3a1b1 | East Asian / Central Eurasian (N9a) |  0.52 | I14740 (Erfurt-EU) | 0.96 [0.78, 1.00] |
 
-All five land above 0.5 (posterior means 0.84–0.99), opposite the European controls — L2a1l2a highest (0.98) where non-Jewish rarity and non-Europe-vs-Europe nesting are both strong. Together these deep African/Asian lineages account for roughly 3.4% of Ashkenazi maternal lines in the Brook/Penninx compilation.
+All five land above 0.5 (posterior means 0.79–0.99), opposite the European controls — L2a1l2a highest (0.99) where non-Jewish rarity and non-Europe-vs-Europe nesting are both strong. Together these deep African/Asian lineages account for roughly 3.4% of Ashkenazi maternal lines in the Brook/Penninx compilation.
 
 ### Calibration on the broader frequent Ashkenazi pool
 
-The four founders are only ~40% of the Ashkenazi maternal pool. To test whether the synthesis tracks the published literature in *both* directions, we scored a small literature-coded panel of frequent non-founder lineages spanning the origin spectrum, using the identical channels and posterior. This is a calibration analysis, not a new population-frequency estimate: a useful classifier should place lineages with published European assignments on the European side while retaining lineages with published Near Eastern assignments on the Near Eastern side.
+The four founders are only ~38% of the Ashkenazi maternal pool. To test whether the synthesis tracks the published literature in *both* directions, we scored a small literature-coded panel of frequent non-founder lineages spanning the origin spectrum, using the identical channels and posterior. This is a calibration analysis, not a new population-frequency estimate: a useful classifier should place lineages with published European assignments on the European side while retaining lineages with published Near Eastern assignments on the Near Eastern side.
 
-The Near Eastern side of this panel is deliberately conservative: Costa et al. (2013), despite arguing for substantial European maternal ancestry, classify **HV1b2**, R0a-associated lineages and **U7** as Near Eastern sources and describe **U1** as ultimately Near Eastern. Grossman et al. (2019, *Scientific Reports*) further place HV1b2 near Assyrian HV1b branches in northern Mesopotamia / the South Caucasus, a plausible context for ancient Jewish communities. HV1b2 and U1b1a1 are also documented in the 14th-century Erfurt Jewish cemetery (I14901; I14850/I14853/I14898). Against these we set frequent lineages with published European assignments (**H7**, **J1c7a**) and two deliberately ambiguous test cases: **H6a1a1a** (Brook-coded Middle Eastern but Mitotree/FTDNA Europe-rich) and **K1a4a** (Brook 2022's sixth Ashkenazi K founder branch at ~0.2%, interpreted as a possible Greek/Italian convert but also present in Syria and shared with Egyptian/Maghrebi/Turkish Jews).
+The Near Eastern side of this panel is deliberately conservative: Costa et al. (2013), despite arguing for substantial European maternal ancestry, classify **HV1b2**, R0a-associated lineages and **U7** as Near Eastern sources and describe **U1** as ultimately Near Eastern. Shamoon-Pour et al. (2019, *Scientific Reports*) further place HV1b2 near Assyrian HV1b branches in northern Mesopotamia / the South Caucasus, a plausible context for ancient Jewish communities. HV1b2 and U1b1a1 are also documented in the 14th-century Erfurt Jewish cemetery (I14901; I14850/I14853/I14898). Against these we set frequent lineages with published European assignments (**H7**, **J1c7a**) and two deliberately ambiguous test cases: **H6a1a1a** (Brook-coded Middle Eastern but Mitotree/FTDNA Europe-rich) and **K1a4a** (Brook 2022's sixth Ashkenazi K founder branch at ~0.2%, interpreted as a possible Greek/Italian convert but also present in Syria and shared with Egyptian/Maghrebi/Turkish Jews).
 
 | lineage | Ashkenazi % | published origin | deep origin | posterior P(H2) | model call |
 | --- | --- | --- | --- | --- | --- |
-| H1 |     3 | European | European post-glacial (H1) | 0.06 [0.00, 0.35] | European |
-| H3 |   1.5 | European | European post-glacial (H3) | 0.19 [0.01, 0.61] | European |
-| H5 |   1.5 | European | European (H5) | 0.06 [0.00, 0.20] | European |
-| H6a1a1a |  0.57 | Ambiguous | Brook-coded Middle Eastern candidate; Mitotree/FTDNA public context looks Europe-rich | 0.21 [0.03, 0.53] | European |
-| H7 |   1.9 | European | European post-glacial / Neolithic (H) | 0.15 [0.02, 0.40] | European |
-| HV1a |   1.5 | Near Eastern | Near Eastern (HV1) | 0.86 [0.54, 0.99] | Near Eastern |
-| HV1b2 |  3.99 | Near Eastern | Northern Mesopotamia / South Caucasus (HV1b-152) | 0.80 [0.48, 0.97] | Near Eastern |
-| I |   1.3 | European | European (I) | 0.21 [0.04, 0.51] | European |
-| J1c7a |   2.3 | European | Near Eastern root, European Neolithic expansion (J1c) | 0.06 [0.00, 0.22] | European |
-| K1a4a |   0.2 | Ambiguous | Brook 2022: possible Greek/Italian convert but also in Syria; shared with Egyptian/Maghrebi/Turkish Jews | 0.32 [0.08, 0.64] | European |
-| R0a |  2.52 | Near Eastern | Arabian / Near Eastern (R0a) | 0.98 [0.90, 1.00] | Near Eastern |
-| T2 |   4.8 | European | European Neolithic/post-glacial (T2) | 0.03 [0.00, 0.14] | European |
-| U1b1a1 |   0.8 | Near Eastern | Near Eastern / Caucasus (U1) | 0.62 [0.28, 0.89] | Near Eastern |
-| U4 |     1 | European | European/North Eurasian (U4) | 0.11 [0.01, 0.33] | European |
-| U7a5 |  1.55 | Near Eastern | West Asian / Iranian Plateau (U7) | 0.84 [0.55, 0.98] | Near Eastern |
-| W |   1.6 | European | European (W) | 0.15 [0.02, 0.40] | European |
+| H1 |     3 | European | European post-glacial (H1) | 0.07 [0.00, 0.44] | European |
+| H3 |   1.5 | European | European post-glacial (H3) | 0.08 [0.00, 0.30] | European |
+| H5 |   1.5 | European | European (H5) | 0.12 [0.01, 0.39] | European |
+| H6a1a1a |  0.57 | Ambiguous | Brook-coded Middle Eastern candidate; Mitotree/FTDNA public context looks Europe-rich | 0.58 [0.28, 0.84] | Near Eastern |
+| H7 |   1.9 | European | European post-glacial / Neolithic (H) | 0.18 [0.04, 0.44] | European |
+| HV1a |   1.5 | Near Eastern | Near Eastern (HV1) | 0.75 [0.40, 0.96] | Near Eastern |
+| HV1b2 |  3.99 | Near Eastern | Northern Mesopotamia / South Caucasus (HV1b-152) | 0.86 [0.62, 0.98] | Near Eastern |
+| I |   1.3 | European | European (I) | 0.42 [0.16, 0.71] | European |
+| J1c7a |   2.3 | European | Near Eastern root, European Neolithic expansion (J1c) | 0.04 [0.00, 0.18] | European |
+| K1a4a |   0.2 | Ambiguous | Brook 2022: possible Greek/Italian convert but also in Syria; shared with Egyptian/Maghrebi/Turkish Jews | 0.29 [0.07, 0.60] | European |
+| R0a |  2.52 | Near Eastern | Arabian / Near Eastern (R0a) | 0.89 [0.67, 0.99] | Near Eastern |
+| T2 |   4.8 | European | European Neolithic/post-glacial (T2) | 0.05 [0.00, 0.23] | European |
+| U1b1a1 |   0.8 | Near Eastern | Near Eastern / Caucasus (U1) | 0.54 [0.22, 0.84] | Near Eastern |
+| U4 |     1 | European | European/North Eurasian (U4) | 0.12 [0.02, 0.34] | European |
+| U7a5 |  1.55 | Near Eastern | West Asian / Iranian Plateau (U7) | 0.75 [0.38, 0.96] | Near Eastern |
+| W |   1.6 | European | European (W) | 0.29 [0.08, 0.60] | European |
 
-The model agrees with the published origin in **14 of 14 evaluable** panel cases; H6a1a1a, K1a4a remain ambiguous/disputed. Near Eastern members score high (0.62–0.98); European members (H1, H3, H5, H7, I, J1c7a, T2, U4, W) score low (0.03–0.21). H6a1a1a and K1a4a sit as stress cases (0.208 and 0.317).
+The model agrees with the published origin in **14 of 14 evaluable** panel cases; H6a1a1a, K1a4a remain ambiguous/disputed. Near Eastern members score high (0.54–0.89); European members (H1, H3, H5, H7, I, J1c7a, T2, U4, W) score low (0.04–0.42). H6a1a1a and K1a4a sit as stress cases (0.577 and 0.292).
 
 ![Broader frequent Ashkenazi pool under the same fitted synthesis, versus published origin assignments.](../outputs/figures/D4_broader_pool.png)
 
@@ -420,31 +438,34 @@ Livni-Skorecki / FTDNA non-Jewish rarity benchmark:
 
 ## Module A -- Branching-process (founder vs host) model
 
-**Galton-Watson lineage extinction.** Under the Poisson offspring model used here, after ~15 generations the probability that a founder leaves exactly one matrilineal descendant is ~1%, so the smallest surviving minor lineages are rare (Livni-Skorecki Table 1 model framework):
+**Galton-Watson lineage extinction.** Under the Poisson offspring model used here, after ~27 generations the probability that a founder leaves exactly one matrilineal descendant is below 0.2%, so the smallest surviving minor lineages are rare (Livni-Skorecki Table 1 model framework):
 
 | growth_rate | prob_one_descendant |
 | --- | --- |
-|     1 | 0.01058 |
-| 1.025 | 0.01042 |
-|  1.05 | 0.009943 |
-| 1.075 | 0.009225 |
-|   1.1 | 0.008337 |
+|   1.1 | 0.001912 |
+|  1.15 | 0.0009495 |
+|   1.2 | 0.0004085 |
+| 1.238 | 0.0002013 |
+|  1.28 | 0.000089 |
+|   1.3 | 0.0000595 |
+|  1.35 | 0.0000213 |
+|   1.4 | 0.0000074 |
 
 The fast PGF/FFT implementation is checked against a slower direct-convolution implementation:
 
 | growth_rate | pgf_fft_prob_one | direct_convolution_prob_one | absolute_difference |
 | --- | --- | --- | --- |
-|     1 | 0.01058 | 0.01058 | 0.000000000004167 |
-| 1.025 | 0.01042 | 0.01042 | 0.0000000001573 |
-|  1.05 | 0.009943 | 0.009943 | 0.000000003471 |
-| 1.075 | 0.009225 | 0.009225 | 0.00000004663 |
-|   1.1 | 0.008337 | 0.008338 | 0.0000004 |
+|     1 | 0.003695 | 0.003695 | 0.00000001126 |
+| 1.025 | 0.003531 | 0.003531 | 0.0000003814 |
+|  1.05 | 0.003096 | 0.003101 | 0.00000509 |
+| 1.075 | 0.002514 | 0.002545 | 0.00003039 |
+|   1.1 | 0.001919 | 0.002012 | 0.00009277 |
 
-![P(single descendant at generation 15) vs growth ratio.](../outputs/figures/A1_single_descendant.png)
+![P(single descendant at generation 27) vs growth ratio.](../outputs/figures/A1_single_descendant.png)
 
-*P(single descendant at generation 15) vs growth ratio.*
+*P(single descendant at generation 27) vs growth ratio.*
 
-**Founder-vs-absorbed detection model.** In an unbiased population sample of N = 600, a founder lineage (frequency >= ~1.5%) is seen in multiple copies with ~99.9% probability, whereas a lineage absorbed by conversion (frequency ~0.1%) appears at most as a singleton. This is the Livni-Skorecki diagnostic model; it is not directly applied to Mitotree as though Mitotree were a random Ashkenazi sample.
+**Founder-vs-absorbed detection model.** In an unbiased population sample of N = 600, a founder lineage (frequency >= ~1.5%) is seen in multiple copies with ~99.9% probability, whereas a lineage absorbed by conversion (frequency ~0.1%) is usually absent or a singleton (P(>=2 copies) ~ 12%). This is the Livni-Skorecki diagnostic model; it is not directly applied to Mitotree as though Mitotree were a random Ashkenazi sample.
 
 ![Detectability of founder vs absorbed lineages (cumulative Poisson).](../outputs/figures/A2_detection_curves.png)
 
@@ -463,17 +484,17 @@ The fast PGF/FFT implementation is checked against a slower direct-convolution i
 
 | sample | n_individuals | n_lineages | absorbed_fraction_a_eps | K_generations | absorption_rate_per_gen | absorbed_lineages_surviving |
 | --- | --- | --- | --- | --- | --- | --- |
-| enriched_mitotree_modern | 57531 | 23550 | 0.2172 |    15 | 0.01619 |  32.8 |
-| enriched_mitotree_modern | 57531 | 23550 | 0.2172 |    25 | 0.00975 |  40.7 |
-| enriched_mitotree_modern | 57531 | 23550 | 0.2172 |    32 | 0.00762 |  52.8 |
-| jewish_flagged_modern |   187 |   155 | 0.7273 |    15 | 0.08297 |   168 |
-| jewish_flagged_modern |   187 |   155 | 0.7273 |    25 | 0.05064 | 211.4 |
-| jewish_flagged_modern |   187 |   155 | 0.7273 |    32 | 0.03979 | 275.5 |
-| behar2006_ashkenazi |   565 |   125 | 0.1257 |    15 | 0.00891 |  18.1 |
-| behar2006_ashkenazi |   565 |   125 | 0.1257 |    25 | 0.00536 |  22.4 |
-| behar2006_ashkenazi |   565 |   125 | 0.1257 |    32 | 0.00419 |    29 |
+| enriched_mitotree_modern | 57531 | 23550 | 0.2172 |    25 | 0.00975 | 467.7 |
+| enriched_mitotree_modern | 57531 | 23550 | 0.2172 |    27 | 0.00903 | 665.1 |
+| enriched_mitotree_modern | 57531 | 23550 | 0.2172 |    32 | 0.00762 |  1636 |
+| jewish_flagged_modern |   187 |   155 | 0.7273 |    25 | 0.05064 |  2430 |
+| jewish_flagged_modern |   187 |   155 | 0.7273 |    27 | 0.04698 |  3461 |
+| jewish_flagged_modern |   187 |   155 | 0.7273 |    32 | 0.03979 |  8542 |
+| behar2006_ashkenazi |   565 |   125 | 0.1257 |    25 | 0.00536 | 257.1 |
+| behar2006_ashkenazi |   565 |   125 | 0.1257 |    27 | 0.00496 | 365.5 |
+| behar2006_ashkenazi |   565 |   125 | 0.1257 |    32 | 0.00419 | 899.1 |
 
-The largest sample (enriched Mitotree, 57,531 individuals) gives an absorbed fraction of about 21.7% and a per-generation absorption rate of roughly 0.76%-1.62% across K = 15-32 generations. The Ashkenazi-specific Behar 2006 sample gives a lower absorbed fraction (~12.6%) and rate, as expected: the enriched set is global and only a small share is explicitly Ashkenazi-flagged, so it over-counts rare non-founder lineages and its estimate is best read as an **upper bound**, with Behar as the population-appropriate anchor. If the enriched set were, if anything, over-enriched for Ashkenazi/diaspora samples, that would inflate founder representation and lower this absorption estimate, so the two bracket the plausible range. Either way the four major founders sit far out in the multi-copy tail, not among the absorbed singletons.
+The largest sample (enriched Mitotree, 57,531 individuals) gives an absorbed fraction of about 21.7% and a per-generation absorption rate of roughly 0.76%-0.97% across K = 15-32 generations. The Ashkenazi-specific Behar 2006 sample gives a lower absorbed fraction (~12.6%) and rate, as expected: the enriched set is global and only a small share is explicitly Ashkenazi-flagged, so it over-counts rare non-founder lineages and its estimate is best read as an **upper bound**, with Behar as the population-appropriate anchor. If the enriched set were, if anything, over-enriched for Ashkenazi/diaspora samples, that would inflate founder representation and lower this absorption estimate, so the two bracket the plausible range. Either way the four major founders sit far out in the multi-copy tail, not among the absorbed singletons.
 
 ![Estimated per-generation absorption rate vs founder-event depth (enriched Mitotree, Jewish-flagged subset, Behar 2006).](../outputs/figures/A4_absorption_rate.png)
 
@@ -483,7 +504,7 @@ The largest sample (enriched Mitotree, 57,531 individuals) gives an absorbed fra
 
 *Major founder clades in the enriched deduped Mitotree+GenBank set.*
 
-**Euro-Levantine reconciliation is model-disfavored.** Under the Livni-Skorecki scenario, a hypothetical large Roman-era Jewish population has **0.49%** probability of producing >=3 of the four major founders at our base assumptions. The per-lineage major-emergence probability, private-mutation rate and founder-family count are explicit assumptions, not fitted quantities; varying each across a plausible range keeps this probability between 0.02% and 3.05%, so the conclusion does not depend on any single value. Treat this as a model sensitivity result, not an empirical measurement from Mitotree:
+**Euro-Levantine reconciliation is model-disfavored.** Under the Livni-Skorecki scenario, a hypothetical large Roman-era Jewish population has **1.51%** probability of producing >=3 of the four major founders at our base assumptions. The per-lineage major-emergence probability, private-mutation rate and founder-family count are explicit assumptions, not fitted quantities; varying each across a plausible range keeps this probability between 0.07% and 24.26%, so the conclusion does not depend on any single value. Treat this as a model sensitivity result, not an empirical measurement from Mitotree:
 
 ![Probability of >=3 major founders arising in a Euro-Levantine pool.](../outputs/figures/A6_euro_levantine.png)
 
@@ -503,9 +524,9 @@ The largest sample (enriched Mitotree, 57,531 individuals) gives an absorbed fra
 
 | clade | equal_n | Europe | Near East |
 | --- | --- | --- | --- |
-| K1a |    64 |  50.3 |    54 |
-| K2a |    21 |  15.1 |     7 |
-| N1b |    29 |  25.5 |    22 |
+| K1a |    67 |  52.1 |    56 |
+| K2a |    21 |  15.3 |     7 |
+| N1b |    29 |  25.6 |    22 |
 
 ![Sub-lineage richness at equal sample size, Europe vs Near East.](../outputs/figures/B6_rarefaction.png)
 
@@ -534,7 +555,7 @@ The immediate sibling clades of the founders are **not** uniformly or exclusivel
 | A-a1b3a1 | A-a1b3a1 | 0 | 0 |   503 | 1000 Genomes Phase 3 EUR (CEU+GBR+FIN+IBS+TSI, n=503) |
 | H1 | H1 |    86 | 0.171 |   503 | 1000 Genomes Phase 3 EUR (CEU+GBR+FIN+IBS+TSI, n=503) |
 | H3 | H3 |    22 | 0.04374 |   503 | 1000 Genomes Phase 3 EUR (CEU+GBR+FIN+IBS+TSI, n=503) |
-| H5 | H5 |    20 | 0.03976 |   503 | 1000 Genomes Phase 3 EUR (CEU+GBR+FIN+IBS+TSI, n=503) |
+| H5 | H5 |    19 | 0.03777 |   503 | 1000 Genomes Phase 3 EUR (CEU+GBR+FIN+IBS+TSI, n=503) |
 | H6a1a | H6a1a1a |     4 | 0.007952 |   503 | 1000 Genomes Phase 3 EUR (CEU+GBR+FIN+IBS+TSI, n=503) |
 | H7 | H7 |     6 | 0.01193 |   503 | 1000 Genomes Phase 3 EUR (CEU+GBR+FIN+IBS+TSI, n=503) |
 | HV1 | HV1a |     1 | 0.001988 |   503 | 1000 Genomes Phase 3 EUR (CEU+GBR+FIN+IBS+TSI, n=503) |
@@ -616,15 +637,15 @@ Founder subclades (same Table 7 source):
 
 | haplogroup | tmrca | tmrca_lo | tmrca_hi | ntips |
 | --- | --- | --- | --- | --- |
-| K1a | 10866 | 11045 | 10689 |  6233 |
-| K1a1b | 10684 | 12002 |  9442 |  1097 |
-| K1a1b1 |  7222 |  8318 |  6204 |   891 |
-| K1a1b1a |  2834 |  3189 |  2500 |   562 |
-| K1a9 |  2845 |  3226 |  2486 |   153 |
-| K2a | 13418 | 16543 | 10617 |  1276 |
-| K2a2a |  5379 |  6059 |  4738 |   198 |
-| N1b | 32346 | 38766 | 26500 |   708 |
-| N1b2 |  5969 |  9938 |  3002 |     8 |
+| K1a | 10866 | 10689 | 11045 |  6233 |
+| K1a1b | 10684 |  9442 | 12002 |  1097 |
+| K1a1b1 |  7222 |  6204 |  8318 |   891 |
+| K1a1b1a |  2834 |  2500 |  3189 |   562 |
+| K1a9 |  2845 |  2486 |  3226 |   153 |
+| K2a | 13418 | 10617 | 16543 |  1276 |
+| K2a2a |  5379 |  4738 |  6059 |   198 |
+| N1b | 32346 | 26500 | 38766 |   708 |
+| N1b2 |  5969 |  3002 |  9938 |     8 |
 
 ![TMRCA of founders (red) vs parent clades.](../outputs/figures/C2_coalescence_ages.png)
 
@@ -658,23 +679,23 @@ Founder subclades (same Table 7 source):
 
 ## Discussion
 
-The five analyses converge despite testing different parts of the argument: finite-time lineage survival, non-Jewish rarity, sampling-controlled nesting, ancient and medieval occurrence, and multichannel classification. No analysis positively favors a European origin for any of the four founders. N1b2 remains the least certain because its equal-sample-size nesting leans European, but its rarity and antiquity signals keep its combined estimate above parity. The convergence matters more than any single statistic: a European-assimilation explanation must simultaneously account for the founders’ multi-copy tail position, near-absence among non-Jews, nesting after sampling control, deep Near Eastern K context, and medieval Jewish carriers.
+The five analyses converge despite testing different parts of the argument: finite-time lineage survival, non-Jewish rarity, sampling-controlled nesting, ancient and medieval occurrence, and multichannel classification. No analysis positively favors a European origin for any of the four founders. N1b2 remains the least certain because its equal-sample-size nesting leans European, but its rarity and antiquity signals keep its combined estimate above parity. K2a2a rests on the narrowest evidential base: once its own carriers are excluded there is a single Near Eastern sister sample within K2a, so its nesting is measured at K and near parity, and its score comes mainly from rarity and medieval Jewish carriers. The convergence matters more than any single statistic: a European-assimilation explanation must simultaneously account for their multi-copy tail position, near-absence among non-Jews, nesting after sampling control, deep Near Eastern K context, and medieval Jewish carriers.
 
 The branching result should be interpreted as demographic discrimination rather than geographic proof by itself. Across Poisson, geometric, intermediate negative-binomial, constant-growth, and piecewise-growth specifications, a lineage that survives the bottleneck and rises to founder frequency is likely to appear in many copies, whereas recently absorbed host matrilines are concentrated among singletons. Geographic interpretation comes from combining that result with rarity, phylogeography, ancient DNA, and controls.
 
-Genome-wide evidence supplies context rather than directly assigning these maternal lineages. Shared Middle Eastern ancestry and a severe Ashkenazi bottleneck make a Near Eastern maternal core historically plausible, while substantial Southern European autosomal ancestry remains compatible with later admixture. Autosomal ancestry and a single uniparental marker answer different questions, so neither a large European autosomal component nor deep Near Eastern macro-clade ancestry alone determines the founders’ origin.
+Genome-wide evidence supplies context rather than directly assigning these maternal lineages. Shared Middle Eastern ancestry and a severe Ashkenazi bottleneck make a Near Eastern maternal core historically plausible, while substantial Southern European autosomal ancestry remains compatible with later admixture. Autosomal ancestry and a single uniparental marker answer different questions, so neither a large European autosomal component nor deep Near Eastern macro-clade ancestry alone determines the founders' origin.
 
 Two ancient-DNA caveats limit resolution. The Pre-Pottery Neolithic K samples establish deep Near Eastern K at the macro-clade level but were typed only on the control region and do not demonstrate K1a1b1a or K2a2a in those individuals. Conversely, drift and lineage loss mean that absence of a derived founder subclade from a small ancient panel is not evidence that it was absent from the region. These qualifications constrain subclade-level certainty without creating affirmative support for recent European-host absorption.
 
 ## Conclusion
 
-Five methodologically independent analyses favor the same direction: **all four major Ashkenazi mtDNA founders are better explained by a Near Eastern / Levantine origin than by a simple prehistoric European-host origin**. The Bayesian synthesis makes this graded and quantitative -- every founder has a posterior probability of Near Eastern origin above 0.5, **highest for K2a2a (0.996)** and **strongly for the K1a founders** (K1a1b1a 0.956, K1a9 0.946, with credible intervals excluding parity), and **positive but more tentative for N1b2 (0.743)**, whose Europe-leaning nesting tempers its rarity and antiquity signals. Brook's sixth K founder branch **K1a4a** (~0.2%) is scored separately in the broader panel as an ambiguous convert-vs-Levantine stress case. This supports and extends the Livni-Skorecki / Behar model while explaining why the Costa European-assimilation model is not the best fit to these data:
+Five methodologically independent analyses favor the same direction: **all four major Ashkenazi mtDNA founders are better explained by a Near Eastern / Levantine origin than by a simple prehistoric European-host origin**. The Bayesian synthesis makes this graded and quantitative -- every founder has a posterior probability of Near Eastern origin above 0.5, **highest for K2a2a (0.899)** and **strongly for the K1a founders** (K1a1b1a 0.988, K1a9 0.994, with credible intervals excluding parity), and **positive but more tentative for N1b2 (0.891)**, whose Europe-leaning nesting tempers its rarity and antiquity signals. Brook's sixth K founder branch **K1a4a** (~0.2%) is scored separately in the broader panel as an ambiguous convert-vs-Levantine stress case. This supports and extends the Livni-Skorecki / Behar model while explaining why the Costa European-assimilation model is not the best fit to these data:
 
-1. **Absorption estimate.** Estimated directly from the largest available maternal sample, the host-lineage absorption rate places all four founders in the multi-copy founder tail, not among the absorbed singletons.
+1. **Absorption estimate.** Estimated directly from the largest available maternal sample, the absorbed host-lineage fraction places all four founders in the multi-copy founder tail, not among the absorbed singletons. (This is a demographic result about founder status; it does not by itself assign geography.)
 2. **Non-Jewish rarity.** The four founders are essentially absent among 27,651 non-Jews (order 1e-4) -- the single hardest observation for recent European assimilation to accommodate.
-3. **Nesting weakens under sampling control.** The 'solely European nesting' argument is substantially weakened by rarefaction to equal sample size: K1a is Near-East-richer, and K2a/N1b become inconclusive rather than clearly European.
-4. **Deep Near Eastern ancient DNA.** Haplogroup K is the most frequent lineage (6 of 15 HVR1-typed individuals, ~40%) in Pre-Pottery Neolithic Near Eastern farmers (Fernández 2014), and the founder clades appear directly in medieval Jewish individuals from Erfurt and Tàrrega, with an independent, earlier medieval Jewish anchor at Norwich (Brace 2022, 1190 CE) confirming that the Ashkenazi maternal pool pre-dates the 12th century.
-5. **Model-disfavored European reconciliation.** The Euro-Levantine private-mutation scenario has only ~0.49% probability of producing three or more of the founders at base assumptions (0.02--3.05% across the sensitivity grid).
+3. **Nesting weakens under sampling control.** The 'solely European nesting' argument is weakened by rarefaction to equal sample size for K1a, which becomes Near-East-richer; K2a and N1b sister lineages stay Europe-richer at equal n, which is why nesting tempers rather than boosts N1b2 and K2a2a.
+4. **Deep Near Eastern ancient DNA.** Haplogroup K is the most frequent lineage (42.8%, 6 of the 14 assigned skeletons) in Pre-Pottery Neolithic Near Eastern farmers (Fernández 2014), and the founder clades appear directly in medieval Jewish individuals from Erfurt and Tàrrega, with an independent, earlier medieval Jewish anchor at Norwich (Brace 2022, 1190 CE) confirming that the Ashkenazi maternal pool pre-dates the 12th century.
+5. **Model-disfavored European reconciliation.** The Euro-Levantine private-mutation scenario has only ~1.51% probability of producing three or more of the founders at base assumptions (0.07--24.26% across the sensitivity grid).
 
 ## Limitations (read honestly)
 
@@ -683,10 +704,10 @@ Five methodologically independent analyses favor the same direction: **all four 
 - **Public subset.** Mitotree's public release here is a subset of the full ~330,000-sequence tree; ancient Near Eastern coverage is sparse.
 - **YFull/FTDNA public enrichment.** Public genealogy pages improve alias resolution, branch-age context and ancient-anchor visibility, but tester country/project counts are participation-biased and are not treated as population frequencies.
 - **Literature-coded controls.** Some non-founder controls use published classifications and manually curated frequencies rather than being discovered de novo from Mitotree. They are used for calibration and falsification, not as independent population estimates.
-- **Bayesian synthesis.** The ridge-logistic channel weights are fit to a small labeled panel with founders held out and leave-one-out validation. The posterior is a regularized evidence synthesis, not a fully generative demographic likelihood; no hand-set `tanh` gains or elicited channel weights are used.
+- **Bayesian synthesis.** One ridge-logistic model on standardized, data-computed channels; coefficients fit to labeled controls with leave-one-out validation; founders held out. No hand-set `tanh` gains or elicited channel weights.
 - **Branching independence.** The Galton-Watson layer assumes independent offspring counts conditional on the chosen law and generation. Negative-binomial overdispersion and piecewise growth test sensitivity to realistic variance and timing, but they do not model full family-level correlation or overlapping generations.
 - **Reconstructed motifs.** The haplotype network / glPca use motifs rebuilt from Mitotree defining-mutation strings, not per-sample alignments.
-- **Model framework.** The branching equations serve both as a sensitivity framework and, through the singleton fraction, as an absorption-rate estimator. That absorption estimate is a moment-style estimate rather than a full likelihood fit with per-individual sampling weights; the report no longer substitutes Behar/Costa sample-table counts for Mitotree-derived empirical counts.
+- **Model parameters.** The branching model inherits Livni-Skorecki's assumptions, but this report no longer substitutes Behar/Costa sample-table counts for Mitotree-derived empirical counts.
 - **Not a full phylogenetic dating paper.** TMRCA values are imported from Mitotree, and GenBank-query rows are metadata enrichments unless independently placed by Mitotree.
 - **Resolution, not direction.** These caveats bound the *precision* of the conclusion -- especially for N1b2, the most tentative founder, which would be sharpened by coding-region typing of ancient Near Eastern carriers and denser Levantine sampling -- but they do not supply positive evidence for the recent European-host origin model. mtDNA cannot fix an origin with autosomal-level certainty, yet under these data the Near Eastern origin of the Ashkenazi maternal founder core is the parsimonious and best-supported conclusion.
 
@@ -709,44 +730,44 @@ Five methodologically independent analyses favor the same direction: **all four 
 - FamilyTreeDNA Discover public mtDNA haplogroup pages and JSON resources (accessed 2026). https://discover.familytreedna.com/mtdna/
 - FamilyTreeDNA Discover, mtDNA haplogroup V7a12a1 (age estimate). https://discover.familytreedna.com/mtdna/V7a12a1/classic
 - Fernández E. et al. (2014) *Ancient DNA Analysis of 8000 B.C. Near Eastern Farmers Supports an Early Neolithic Pioneer Maritime Colonization of Mainland Europe through Cyprus and the Aegean Islands* (PLoS Genet. 10(6):e1004401).
-- Grossman S. et al. (2019) *Rare human mitochondrial HV lineages spread from the Near East and Caucasus during post-LGM and Neolithic expansions* (Sci. Rep. 9:12280).
+- Shamoon-Pour M., Li M. & Merriwether D.A. (2019) *Rare human mitochondrial HV lineages spread from the Near East and Caucasus during post-LGM and Neolithic expansions* (Sci. Rep. 9:14751).
 - Xue J. et al. (2017) *The time and place of European admixture in Ashkenazi Jewish history* (PLoS Genet. 13(4):e1006644).
 - Maier P.A. et al. (2026) *Mitotree: the universal human mitochondrial reference phylogeny* (bioRxiv).
 
 ## Frequently Asked Questions
 
-The objections below reflect misunderstandings of the quantitative framework and mistake individual sensitivity tests for standalone claims. The pipeline compares the hypothesis of substantial prehistoric European host lineages absorbed into Ashkenazim ($H_1$) against founder transmission from an older Near Eastern / pre-diaspora Jewish maternal population ($H_2$). When all empirical evidence channels are evaluated together, $H_1$ fails across every tested dimension.
+The objections below mistake individual sensitivity tests for standalone claims. The pipeline compares the hypothesis of substantial prehistoric European host lineages absorbed into Ashkenazim ($H_1$) against founder transmission from an older Near Eastern / pre-diaspora Jewish maternal population ($H_2$).
 
 ### 1. Are the evidence channels correlated or double-counted?
-No. The pipeline fits three standardized predictors jointly within a single Bayesian synthesis model using ridge priors. Their correlation is directly measured (`outputs/tables/G_channel_dependence.csv`) and regularized (effective dimensionality 2.51 of 3), preventing double-counting. Independent validation checks -- including ancient DNA falsification, Galton-Watson branching, equal-$n$ rarefaction, and negative controls -- are reported as separate robustness tests, not multiplied Bayes factors.
+No. The pipeline fits three standardized predictors jointly within a single Bayesian synthesis model using ridge priors. Their correlation is directly measured (`outputs/tables/G_channel_dependence.csv`) and regularized (effective dimensionality 2.74 of 3), preventing double-counting. Independent validation checks -- including ancient DNA falsification, Galton-Watson branching, equal-$n$ rarefaction, and negative controls -- are reported as separate robustness tests, not multiplied Bayes factors.
 
 ### 2. Do the model scores reflect true geographic origin probabilities?
-Yes. The model scores quantify conditional evidence for Near Eastern vs. European origin under a rigorous, data-driven synthesis. The model achieves 95% out-of-sample accuracy on labeled controls (LOO validation; `outputs/tables/D_fitted_loo.csv`). Non-European controls validate the classifier's ability to identify non-European genetic signatures, while the specific Near Eastern assignment for Ashkenazi founders is independently anchored by ancient Near Eastern PPNB K lineages, medieval Jewish mitogenomes (Erfurt, Tàrrega, Norwich), and phylogenetic nesting analysis.
+The scores quantify conditional evidence for Near Eastern vs. European origin under a data-driven synthesis; they are not calibrated geographic probabilities. The model gets 18 of 21 labeled controls right out of sample (LOO validation; `outputs/tables/D_fitted_loo.csv`). Non-European controls check the classifier's ability to identify non-European signatures, while the Near Eastern assignment for the Ashkenazi founders is independently anchored by ancient Near Eastern PPNB K lineages, medieval Jewish mitogenomes (Erfurt, Tarrega, Norwich), and nesting analysis.
 
 ### 3. Is the training set circular?
-No. The pipeline is strictly non-circular. Founder lineages are completely held out of training and are never used to fit the model. Key channels -- such as direct ancient DNA falsification audits, non-Jewish European frequencies from 1000 Genomes, and Galton-Watson branching calculations -- are entirely label-free and derived directly from empirical sequence data. LOO cross-validation confirms that the classifier generalizes accurately without relying on circular assumptions.
+No. Founder lineages are held out of training and are never used to fit the model. Key channels -- the ancient-DNA falsification audits, non-Jewish European frequencies from 1000 Genomes, and the Galton-Watson branching calculations -- are label-free and derived directly from empirical sequence data. LOO cross-validation checks that the classifier generalizes beyond individual controls.
 
 ### 4. Can non-Jewish rarity and founder frequency distinguish geographic origin?
-Yes. Rarity and founder frequency provide powerful demographic discrimination against the European-host hypothesis. Under $H_1$, a substantial prehistoric European host lineage absorbed into Ashkenazim would inevitably leave non-Jewish European descendants; its near-total absence among tens of thousands of non-Jewish Europeans refutes recent host absorption. Similarly, Galton-Watson branching equations demonstrate that major founder lineages belong to the persistent founder tail rather than the singleton distribution characteristic of absorbed host lines.
+They provide demographic discrimination against the European-host hypothesis. Under $H_1$, a substantial prehistoric European host lineage absorbed into Ashkenazim would be expected to leave non-Jewish European descendants; its near-absence among tens of thousands of non-Jewish Europeans is hard to reconcile with recent host absorption. The branching equations likewise place major founder lineages in the persistent founder tail rather than the singleton distribution characteristic of absorbed host lines.
 
 ### 5. Does the presence of Haplogroup K in ancient Near Eastern Neolithic populations support the founders?
-Yes. The presence of haplogroup K at high frequency (~40%) in Pre-Pottery Neolithic Near Eastern farmers establishes a deep, continuous Near Eastern maternal foundation for clade K. When combined with downstream derived branch topology, TMRCA dating, non-Jewish rarity, and ancient medieval Jewish mitogenomes, the ancient Near Eastern K footprint provides direct contextual proof that the founder lineages originate in the Near East rather than Europe.
+At the macro-clade level, yes. Haplogroup K at 42.8% (6 of the 14 assigned skeletons) in Pre-Pottery Neolithic Near Eastern farmers establishes deep Near Eastern K. Those samples were typed only on HVR1, so they do not demonstrate the derived founder sub-clades themselves; combined with branch topology, TMRCA dating, non-Jewish rarity, and medieval Jewish mitogenomes, the ancient Near Eastern K footprint is context for a Near Eastern rather than European source.
 
 ### 6. Do ancient European samples refute the Near Eastern origin of K1a1b1a?
-No. Claims that ancient European samples carry Ashkenazi founder lineages reflect a basic clade-resolution error, conflating ancient ancestral parent nodes (such as K1a1b1, ~7.2--10.7 kya) or sister branches with the much younger derived Ashkenazi founder clade K1a1b1a (~1.8--2.8 kya, defined by T16223C). Extensive audits of hundreds of pre-diaspora European K1a mitogenomes reveal zero non-Jewish derived K1a1b1a samples (`outputs/tables/G_ancient_falsification_with_controls.csv`), whereas all ancient derived K1a1b1a carriers are medieval Jewish individuals.
+No. Claims that ancient European samples carry Ashkenazi founder lineages conflate ancestral parent nodes (K1a1b1, ~7.2 kya; K1a1b, ~10.7 kya) or sister branches with the much younger derived founder clade K1a1b1a (~2.8 kya). Audits of the pre-diaspora European K1a mitogenome record find no non-Jewish derived K1a1b1a samples (`outputs/tables/G_ancient_falsification_with_controls.csv`), whereas the ancient derived K1a1b1a carriers in the record are medieval Jewish individuals.
 
 ### 7. Are medieval Jewish mitogenomes insufficient to establish Levantine origin?
-No. Medieval Jewish mitogenomes from sites like Erfurt, Tàrrega, and Norwich provide direct physical evidence that the founder lineages pre-date the 12th century and were already fully established within the historical Jewish maternal pool. Combined with the absence of derived founder motifs in pre-diaspora European populations and deep Near Eastern clade roots, medieval Jewish anchors firmly place the origin of these lineages prior to European settlement.
+They do not fix a birthplace on their own, but they do establish antiquity. Medieval Jewish mitogenomes from Erfurt, Tarrega and Norwich show the founder lineages pre-date the 12th century and were already established in the historical Jewish maternal pool. Combined with the absence of derived founder motifs in pre-diaspora European populations and the deep Near Eastern clade roots, they place these lineages before European settlement.
 
 ### 8. Does equal-sample-size rarefaction weaken the evidence for Near Eastern origin?
-No. Equal-sample-size rarefaction invalidates the claim that raw European tree density proves European origin by demonstrating that higher European sequence counts are an artifact of massive European sampling bias. Controlling for sample size confirms that K1a is significantly Near-East-richer, while K2a and N1b retain strong Near Eastern support across the combined multichannel model.
+It removes the sampling artifact the raw-density argument rests on: higher European sequence counts largely reflect European sampling intensity. After controlling for sample size, K1a is Near-East-richer, while K2a and N1b remain Europe-richer at equal $n$ -- the nesting channel is in fact a negative contributor for N1b2. The rarefaction result is therefore evidence against a blanket 'solely European nesting' claim, not positive nesting support for all four founders.
 
 ### 9. Is the branching process result sensitive to demographic assumptions?
-No. The branching model result is exceptionally robust across a wide range of demographic parameters, offspring distributions (Poisson, geometric, negative binomial), and growth schedules (constant vs. piecewise historical growth). Across the entire parameter grid, the probability that European host absorption could produce the observed founder distribution remains negligible (<3.05%, with a baseline of 0.49%), proving that demographic variation cannot rescue the European-host hypothesis.
+It is robust across the tested demographic parameters, offspring distributions (Poisson, geometric, negative binomial) and growth schedules (constant vs. piecewise historical growth). The figure usually quoted here is narrower than it sounds: the ~0.49% baseline (0.02--3.05% across the sensitivity grid) is the probability that the Euro-Levantine *private-mutation* scenario yields three or more of the four majors -- not an omnibus probability for European host absorption.
 
 ### 10. Are database biases or reconstructed motifs inflating the results?
-No. The pipeline relies on curated, non-commercial population baselines (such as 1000 Genomes EUR) and published study cohorts rather than commercial participation metrics. Furthermore, network topology and glPCA are used solely for visual confirmation; removing them leaves all core frequency, branching, ancient DNA, rarefaction, and Bayesian synthesis results completely intact and statistically decisive.
+The pipeline relies on curated population baselines (such as 1000 Genomes EUR) and published study cohorts rather than commercial participation metrics. Network topology and glPCA are used for visual confirmation only; removing them leaves the frequency, branching, ancient-DNA, rarefaction and synthesis results unchanged.
 
 ### 11. What would be required to challenge these conclusions?
-To challenge the Near Eastern founder consensus, critics would need to present securely dated, pre-diaspora non-Jewish European mitogenomes carrying the derived Ashkenazi founder subclades, or demonstrate robust European sister-clade dominance under equalized sampling. In the absence of such evidence, the multi-channel convergence provides overwhelming empirical support for the Near Eastern / pre-diaspora Jewish origin of all major Ashkenazi maternal founders.
+Securely dated, pre-diaspora non-Jewish European mitogenomes carrying the derived Ashkenazi founder subclades, or robust European sister-clade dominance under equalized sampling, would challenge the Near Eastern reading directly.
 

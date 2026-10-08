@@ -1,7 +1,7 @@
-"kind","founder","aadr_sub","macro","n_sub_ancient","n_sub_jewish","pct_sub_jewish","n_macro_eu_predia","n_sub_eu_predia_nonjewish","n_sub_ne_ancient","oldest_sub_eu_nonjewish_year","oldest_sub_ne_year","host_share_upper95","p_costa_no_drift"
-"founder","K1a1b1a","K1a1b1a","K1a",13,13,100,576,0,0,NA,NA,0.0051874226970644,9.57978792631837e-59
-"founder","K1a9","K1a9","K1a",4,4,100,576,0,0,NA,NA,0.0051874226970644,1.80045033217573e-16
-"founder","K2a2a","K2a2a","K2a",1,0,0,61,1,0,-1324,NA,0.0879881229227453,0.0360868287943858
-"founder","N1b2","N1b1b1","N1b",3,1,33.3,23,1,0,488,NA,0.21948660745348,0.236284878913886
-"eu_control","V (V7a2c1b)","V","HV0",187,0,0,93,129,0,-5808,NA,1,NA
-"eu_control","U5a1 (U5a1f1a3)","U5a1","U5",580,2,0.3,1265,428,2,-8855,-725,0.365161080973237,NA
+"kind","founder","aadr_sub","macro","n_sub_ancient","n_sub_jewish","pct_sub_jewish","n_macro_eu_predia","n_eu_predia_resolvable","n_sub_eu_predia_nonjewish","n_sub_ne_ancient","oldest_sub_eu_nonjewish_year","oldest_sub_ne_year","host_share_upper95","p_costa_no_drift","log10_p_costa_no_drift"
+"founder","K1a1b1a","K1a1b1a","K1a",13,13,100,578,7458,0,0,NA,NA,0.00516951961315248,0,-751.220568985311
+"founder","K1a9","K1a9","K1a",4,4,100,578,7521,0,0,NA,NA,0.00516951961315248,2.61769735045929e-206,-205.58208056658
+"founder","K2a2a","K2a2a","K2a",1,0,0,61,7666,1,0,-1324,NA,0.0754220320305016,4.99964351218401e-182,-181.301060960906
+"founder","N1b2","N1b1b1","N1b",3,1,33.3,23,7708,1,0,488,NA,0.190203966692012,1.04546796182088e-210,-209.980689271519
+"eu_control","V (V7a2c1b)","V","HV0;V",187,0,0,222,7641,129,0,-5808,NA,0.636738766321188,NA,NA
+"eu_control","U5a1 (U5a1f1a3)","U5a1","U5",580,2,0.3,1266,7690,429,2,-8855,-725,0.361400860586935,NA,NA

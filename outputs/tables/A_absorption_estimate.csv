@@ -1,10 +1,10 @@
 "sample","description","n_individuals","n_lineages","absorbed_fraction_a_eps","K_generations","absorption_rate_per_gen","absorbed_lineages_surviving"
-"enriched_mitotree_modern","Enriched Mitotree+GenBank modern (largest available sample)",57531,23550,0.2172,15,0.01619,32.8
-"enriched_mitotree_modern","Enriched Mitotree+GenBank modern (largest available sample)",57531,23550,0.2172,25,0.00975,40.7
-"enriched_mitotree_modern","Enriched Mitotree+GenBank modern (largest available sample)",57531,23550,0.2172,32,0.00762,52.8
-"jewish_flagged_modern","Ashkenazi/Jewish-flagged modern subset (small)",187,155,0.7273,15,0.08297,168
-"jewish_flagged_modern","Ashkenazi/Jewish-flagged modern subset (small)",187,155,0.7273,25,0.05064,211.4
-"jewish_flagged_modern","Ashkenazi/Jewish-flagged modern subset (small)",187,155,0.7273,32,0.03979,275.5
-"behar2006_ashkenazi","Behar 2006 Ashkenazi population sample (benchmark)",565,125,0.1257,15,0.00891,18.1
-"behar2006_ashkenazi","Behar 2006 Ashkenazi population sample (benchmark)",565,125,0.1257,25,0.00536,22.4
-"behar2006_ashkenazi","Behar 2006 Ashkenazi population sample (benchmark)",565,125,0.1257,32,0.00419,29
+"enriched_mitotree_modern","Enriched Mitotree+GenBank modern (largest available sample)",57531,23550,0.2172,25,0.00975,467.7
+"enriched_mitotree_modern","Enriched Mitotree+GenBank modern (largest available sample)",57531,23550,0.2172,27,0.00903,665.1
+"enriched_mitotree_modern","Enriched Mitotree+GenBank modern (largest available sample)",57531,23550,0.2172,32,0.00762,1636.5
+"jewish_flagged_modern","Ashkenazi/Jewish-flagged modern subset (small)",187,155,0.7273,25,0.05064,2430.3
+"jewish_flagged_modern","Ashkenazi/Jewish-flagged modern subset (small)",187,155,0.7273,27,0.04698,3461.3
+"jewish_flagged_modern","Ashkenazi/Jewish-flagged modern subset (small)",187,155,0.7273,32,0.03979,8542.2
+"behar2006_ashkenazi","Behar 2006 Ashkenazi population sample (benchmark)",565,125,0.1257,25,0.00536,257.1
+"behar2006_ashkenazi","Behar 2006 Ashkenazi population sample (benchmark)",565,125,0.1257,27,0.00496,365.5
+"behar2006_ashkenazi","Behar 2006 Ashkenazi population sample (benchmark)",565,125,0.1257,32,0.00419,899.1

@@ -59,12 +59,18 @@ def parse_float(x: str):
 
 def clean_mt(hg: str) -> str:
     hg = (hg or "").strip()
-    # AADR uses '..', 'n/a', 'na', '.' for missing.
-    if hg in ("", "..", ".", "n/a", "na", "NA", "N/A"):
+    if not hg:
         return ""
     # Some calls carry a '+' extra-mutation suffix or trailing coverage note;
     # keep the haplogroup token itself (first whitespace-delimited field).
-    return hg.split()[0]
+    base = hg.split()[0]
+    # AADR writes missing/undetermined calls as '..', '.', or 'n/a (<2x)' -- note
+    # the coverage note, so the test must come AFTER taking the first token, or
+    # 'n/a' survives as if it were a haplogroup name. 'rCRS' is a reference
+    # placeholder, not a call.
+    if base.lower() in ("", "..", ".", "n/a", "na", "rcrs"):
+        return ""
+    return base
 
 
 def main() -> int:

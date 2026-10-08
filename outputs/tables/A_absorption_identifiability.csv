@@ -1,0 +1,10 @@
+"varied","setting","n","clade_resolution","a_eps","absorption_rate_per_gen"
+"sample_size","100",100,"full",0.9585,0.11117
+"sample_size","565",565,"full",0.9045,0.08332
+"sample_size","2000",2000,"full",0.8011,0.05805
+"sample_size","10000",10000,"full",0.5679,0.0306
+"sample_size","57531",57531,"full",0.2172,0.00903
+"clade_resolution","1_chars",57531,"1 chars",0,0
+"clade_resolution","3_chars",57531,"3 chars",0.0031,0.00011
+"clade_resolution","4_chars",57531,"4 chars",0.0251,0.00094
+"clade_resolution","6_chars",57531,"6 chars",0.1228,0.00484

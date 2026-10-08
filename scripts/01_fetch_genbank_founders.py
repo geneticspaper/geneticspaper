@@ -51,23 +51,48 @@ def request(url: str, tries: int = 6) -> bytes:
 
 
 def esearch(term: str, email: str, retmax: int = 500) -> list[str]:
-    params = {
-        "db": "nuccore",
-        "term": term,
-        "retmode": "json",
-        "retmax": str(retmax),
-        "tool": "mitomdoel",
-        "email": email,
-    }
-    url = f"{EUTILS}/esearch.fcgi?{urllib.parse.urlencode(params)}"
-    data = json.loads(request(url).decode("utf-8"))
-    return data["esearchresult"].get("idlist", [])
+    """All accession UIDs for a term, paging until the reported count is covered.
+
+    A single unpaged request silently truncated any founder with more than
+    `retmax` hits, and an NCBI error payload (which carries "ERROR" instead of
+    "idlist") silently became zero rows for that founder.
+    """
+    ids: list[str] = []
+    total: int | None = None
+    while True:
+        params = {
+            "db": "nuccore",
+            "term": term,
+            "retmode": "json",
+            "retmax": str(retmax),
+            "retstart": str(len(ids)),
+            "tool": "mitomdoel",
+            "email": email,
+        }
+        url = f"{EUTILS}/esearch.fcgi?{urllib.parse.urlencode(params)}"
+        result = json.loads(request(url).decode("utf-8")).get("esearchresult", {})
+        if "idlist" not in result:
+            raise RuntimeError(
+                f"NCBI esearch returned no idlist for {term!r}: "
+                f"{result.get('ERROR') or result}"
+            )
+        batch = result["idlist"]
+        if total is None:
+            total = int(result.get("count", len(batch)))
+        ids.extend(batch)
+        if not batch or len(ids) >= total:
+            break
+    return ids
 
 
 def esummary(ids: list[str], email: str) -> list[dict[str, str]]:
     if not ids:
         return []
     rows: list[dict[str, str]] = []
+    # Note: this reads the version-1 DocSum schema (Item elements). Organism,
+    # MolType, SubType and SubName exist only in the version-2.0 schema, so they
+    # are not requested here -- they previously produced four always-empty
+    # columns in the output CSV.
     for i in range(0, len(ids), 150):
         chunk = ids[i : i + 150]
         params = {
@@ -86,11 +111,7 @@ def esummary(ids: list[str], email: str) -> list[dict[str, str]]:
                     "uid": doc.findtext("Id", default=""),
                     "accession_version": item.get("AccessionVersion", ""),
                     "title": item.get("Title", ""),
-                    "organism": item.get("Organism", ""),
                     "length": item.get("Length", ""),
-                    "moltype": item.get("MolType", ""),
-                    "subtype": item.get("SubType", ""),
-                    "subname": item.get("SubName", ""),
                     "taxid": item.get("TaxId", ""),
                     "extra": item.get("Extra", ""),
                 }
@@ -120,8 +141,7 @@ def main() -> None:
             all_rows.append(row)
     fields = [
         "query_haplogroup", "source", "uid", "accession_version", "title",
-        "organism", "length", "moltype", "subtype", "subname", "taxid",
-        "extra", "query_term",
+        "length", "taxid", "extra", "query_term",
     ]
     with open(OUT, "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=fields)

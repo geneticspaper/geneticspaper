@@ -75,8 +75,10 @@ make_enriched_deduped <- function() {
       add$SubjectType <- "Modern"
       add$Haplotype <- NA
       add$Haplogroup <- gb_new$query_haplogroup
-      # GenBank query assignment is lower confidence than Mitotree's tree call;
-      # it is kept separate in haplogroup_source and provenance.
+      # GenBank query assignment is lower confidence than Mitotree's tree call.
+      # It is *flagged* in haplogroup_source and provenance, but it is written
+      # into MitotreeHaplogroup as well, because that is the column every
+      # downstream clade test reads -- so these rows do count as clade members.
       add$MitotreeHaplogroup <- gb_new$query_haplogroup
       add$Length <- gb_new$length
       add$Study <- "GenBank E-utilities"
@@ -180,7 +182,7 @@ make_enriched_deduped <- function() {
   write.csv(out, out_path, row.names = FALSE)
 
   summary <- data.frame(
-    metric = c("mitotree_rows", "rows_after_genbank_append", "deduped_rows",
+    metric = c("mitotree_rows", "rows_after_appends", "deduped_rows",
                "unique_accessions", "behar_flagged", "costa_flagged", "genes2026_flagged",
                "genbank_flagged", "jewish_study_flagged"),
     value = c(nrow(load_samples()), nrow(raw), nrow(out),

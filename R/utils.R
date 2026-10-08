@@ -161,11 +161,26 @@ region_of <- function(country) {
                  "Western Sahara")
   regionize <- function(x) {
     if (is.na(x)) return("Unknown")
-    if (x %in% c_levant)  return("Levant")
-    if (x %in% c_arabmes) return("Arabia_Mesopotamia")
-    if (x %in% c_anatol)  return("Anatolia")
-    if (x %in% c_caucus)  return("Caucasus")
-    if (x %in% c_nafr)    return("North_Africa")
+    # Country labels often carry a parenthetical population annotation
+    # ("Israel (Druze)", "Georgia (Republic of Abkhazia)"). The Near-East and
+    # North-Africa lists below are exact-match, so strip the annotation before
+    # testing them -- otherwise every annotated Levantine/Caucasus/North-African
+    # label falls through all five tests and lands in "Unknown".
+    xb <- trimws(sub("\\s*\\(.*$", "", x))
+    # Republics of the Russian Federation must be tested on the FULL label and
+    # before the Europe keyword set, which matches the bare word "Russia":
+    # the North Caucasus is part of the Near-East pool, not of Europe, and the
+    # Siberian republics are not European at all.
+    if (grepl(paste0("Adygea|Chechen|Chechnya|Dagestan|Kabardino|Ossetia|",
+                     "Karachay|Ingush|Abkhazia"), x)) return("Caucasus")
+    if (grepl("Yakut|Sakha|Buryat|Khakass|\\bTuva\\b|Altai|Evenk|Chukot", x))
+      return("East_Asia")
+    if (grepl("Antilles", x)) return("Americas")
+    if (xb %in% c_levant)  return("Levant")
+    if (xb %in% c_arabmes) return("Arabia_Mesopotamia")
+    if (xb %in% c_anatol)  return("Anatolia")
+    if (xb %in% c_caucus)  return("Caucasus")
+    if (xb %in% c_nafr)    return("North_Africa")
     # Europe: match a broad keyword set (includes parenthetical annotations).
     europe_kw <- paste(c("Denmark","United Kingdom","England","Scotland","Wales",
       "Ireland","Iceland","Norway","Sweden","Finland","Estonia","Latvia",
@@ -174,7 +189,8 @@ region_of <- function(country) {
       "Czech","Slovakia","Hungary","Slovenia","Croatia","Bosnia","Serbia",
       "Montenegro","Kosovo","Albania","North Macedonia","Macedonia","Greece",
       "Bulgaria","Romania","Moldova","Ukraine","Belarus","Russian Federation",
-      "Russia","Sardinia","Sicily","Orkney","Canary Islands","Faroe"),
+      "Russia","Sardinia","Sicily","Orkney","Canary Islands","Faroe",
+      "Channel Islands","Gibraltar","Crimea"),
       collapse = "|")
     if (grepl(europe_kw, x)) return("Europe")
     csa_kw <- paste(c("Pakistan","India","Bangladesh","Sri Lanka","Nepal",
@@ -193,7 +209,9 @@ region_of <- function(country) {
     ame_kw <- paste(c("United States","Canada","Mexico","Guatemala","Panama",
       "Colombia","Ecuador","Peru","Brazil","Chile","Argentina","Uruguay",
       "Paraguay","Bolivia","Venezuela","Puerto Rico","Barbados","Cuba",
-      "Native American","Greenland"), collapse = "|")
+      "Native American","Greenland","USA","Dominican Republic","Bahamas",
+      "Belize","Saint Lucia","Curacao","Guadeloupe","Sint Maarten","Haiti"),
+      collapse = "|")
     if (grepl(ame_kw, x)) return("Americas")
     # Default: treat remaining African countries as Sub-Saharan.
     ssa_kw <- paste(c("Madagascar","Zambia","Gambia","Angola","Kenya","Namibia",
@@ -250,26 +268,102 @@ gw_offspring_pmf <- function(m, jmax = 400L,
 # ratio m_t. In the time-varying case the offspring PGF f_t of generation t is
 # composed in order, g_k(z) = f_1(f_2(...f_k(z)...)); the expected surviving
 # lineage size after k generations is prod(m_t) regardless of ordering.
-gw_descendant_pmf <- function(m, k = 15L, jmax = 400L,
+# ---- Founder-event timing --------------------------------------------------
+# These were previously implicit: k = 15 was a bare default with no generation
+# length anywhere in the repo, which placed the founder event at ~1650 CE --
+# three centuries AFTER the 14th-century Erfurt carriers the analysis relies on,
+# and inconsistent with the K = 25-32 grid used by estimate_absorption().
+#
+# GEN_YEARS: matrilineal generation interval. Fenner (2005, AJPA 128:415-423)
+#   gives a cross-cultural female interval; Tremblay & Vezina (2000) report
+#   ~29-30 yr for maternal lines and Wang et al. (2023) ~23-26 yr for recent
+#   female generations. 26 yr is a defensible central value.
+# FOUNDER_EVENT_YEAR: Carmi et al. (2014) date the Ashkenazi bottleneck to
+#   600-800 years before present (25-32 generations); Waldman et al. (2022)
+#   require it to pre-date the 14th-century Erfurt community.
+GEN_YEARS          <- 26
+PRESENT_YEAR       <- 2025
+FOUNDER_EVENT_YEAR <- 1325
+GW_K <- as.integer(round((PRESENT_YEAR - FOUNDER_EVENT_YEAR) / GEN_YEARS))  # 27
+
+# Net maternal expansion from the founder event to the present. The Ashkenazi
+# population grew from order 25,000 around 1325 CE to roughly 8 million by 1900
+# (~320x over ~22 generations, m ~ 1.30 for that stretch) and was then flat
+# across the 20th century. Spread over all GW_K generations that is an
+# EFFECTIVE ratio of 320^(1/27) = 1.238.
+#
+# Every per-generation growth figure in the pipeline is derived from this one
+# constant so they cannot drift apart: `default_growth_schedule` rescales its
+# phase ratios to reproduce it, and `founder_event_params.csv` records the same
+# effective m. (They previously disagreed by a factor of 23 in net expansion.)
+NET_EXPANSION_TARGET <- 320
+GW_M_EFFECTIVE <- NET_EXPANSION_TARGET^(1 / GW_K)   # 1.238
+
+# Closed-form offspring PGFs. Evaluating these directly avoids truncating the
+# offspring law at `jmax` before composing, which was a second, unnecessary
+# approximation on top of the grid.
+.gw_offspring_pgf <- function(z, m, model, size) {
+  switch(model,
+    poisson   = exp(m * (z - 1)),                      # Poisson(m)
+    geometric = 1 / (1 + m - m * z),                   # P(j) = (1-q)q^j, q=m/(1+m)
+    nbinom    = (1 + (m / size) * (1 - z))^(-size))    # NB(mu = m, size)
+}
+
+# Exact P(Z_k = 0), P(Z_k = 1), P(Z_k = 2) with no grid at all.
+# For G_k(s) = f_1(f_2(...f_k(s)...)), write A_{k+1}(s) = s and A_j = f_j o A_{j+1}.
+# Iterating a = A(0), b = A'(0), c = A''(0) down from j = k to 1 gives the three
+# low-order coefficients exactly: p0 = a, p1 = b, p2 = c/2. This is the right
+# tool for Table 1 and the detection argument, which only ever read these cells,
+# and it is immune to the aliasing described in `gw_descendant_pmf`.
+gw_low_probs <- function(m, k = GW_K,
+                         model = c("poisson", "geometric", "nbinom"),
+                         size = 1) {
+  model <- match.arg(model)
+  if (length(m) == 1L) m <- rep(m, k)
+  if (length(m) != k) stop("`m` must have length 1 or k")
+  f1 <- function(s, mu) switch(model,
+          poisson   = mu * exp(mu * (s - 1)),
+          geometric = mu / (1 + mu - mu * s)^2,
+          nbinom    = mu * (1 + (mu / size) * (1 - s))^(-size - 1))
+  f2 <- function(s, mu) switch(model,
+          poisson   = mu^2 * exp(mu * (s - 1)),
+          geometric = 2 * mu^2 / (1 + mu - mu * s)^3,
+          nbinom    = mu^2 * (1 + 1 / size) * (1 + (mu / size) * (1 - s))^(-size - 2))
+  a <- 0; b <- 1; cc <- 0
+  for (j in k:1) {
+    mu <- m[j]
+    A  <- .gw_offspring_pgf(a, mu, model, size)
+    B  <- f1(a, mu) * b
+    C  <- f2(a, mu) * b^2 + f1(a, mu) * cc
+    a <- A; b <- B; cc <- C
+  }
+  c(p0 = a, p1 = b, p2 = cc / 2, p_ge3 = 1 - a - b - cc / 2)
+}
+
+gw_descendant_pmf <- function(m, k = GW_K, jmax = NULL,
                               model = c("poisson", "geometric", "nbinom"),
                               size = 1) {
   model <- match.arg(model)
   if (length(m) == 1L) m <- rep(m, k)
   if (length(m) != k) stop("`m` must have length 1 or k")
-  N <- jmax + 1L                         # grid size (support 0..jmax)
-  omega <- exp(-2i * pi * (0:(N - 1)) / N)
-  # Evaluate a PGF with coefficients `off` at points z via Horner's method.
-  eval_pgf <- function(z, off) {
-    val <- complex(length(z))
-    for (jj in seq(length(off) - 1, 0)) val <- val * z + off[jj + 1]
-    val
+  # The inverse FFT on N points does NOT truncate mass above the grid -- it
+  # ALIASES it back onto low j (coeff_j picks up every c_{j + N*l}), i.e. onto
+  # exactly the cells this analysis reads. The grid must therefore cover the
+  # bulk of Z_k, whose mean is prod(m). At m = 1.075, k = 15 the old fixed
+  # jmax = 400 was harmless, but at m = 1.4, k = 25 it inflated P(Z_k = 1) by 81x.
+  if (is.null(jmax)) {
+    N <- 2^ceiling(log2(max(512, 64 + 40 * prod(m))))
+  } else {
+    N <- jmax + 1L
+    if (prod(m) > N / 20)
+      warning(sprintf(
+        "gw_descendant_pmf: E[Z_k] = %.0f against grid N = %d; low-order coefficients will be aliased",
+        prod(m), N))
   }
+  omega <- exp(-2i * pi * (0:(N - 1)) / N)
   # Compose innermost (last generation) first so g_k(z) = f_1(f_2(...f_k(z))).
   gz <- omega
-  for (t in rev(seq_len(k))) {
-    off <- gw_offspring_pmf(m[t], jmax = jmax, model = model, size = size)
-    gz <- eval_pgf(gz, off)
-  }
+  for (t in rev(seq_len(k))) gz <- .gw_offspring_pgf(gz, m[t], model, size)
   coeffs <- Re(fft(gz, inverse = TRUE) / N)
   coeffs[coeffs < 0] <- 0
   coeffs / sum(coeffs)
@@ -277,9 +371,9 @@ gw_descendant_pmf <- function(m, k = 15L, jmax = 400L,
 
 # Convenience: probability a founder has exactly one matrilineal descendant
 # after k generations (reproduces Livni-Skorecki Table 1).
-gw_prob_single <- function(m, k = 15L, ...) {
-  pmf <- gw_descendant_pmf(m, k = k, ...)
-  pmf[2]  # index 2 == j = 1
+gw_prob_single <- function(m, k = GW_K, ...) {
+  # Exact: no grid, so no aliasing (see gw_low_probs).
+  unname(gw_low_probs(m, k = k, ...)[["p1"]])
 }
 
 # ---- Plot helper -----------------------------------------------------------

@@ -143,16 +143,27 @@ def in_clade(hg: str, clade: str) -> bool:
     """Clade membership respecting mtDNA haplogroup boundaries.
 
     A subclade name continues with the opposite token type from the segment it
-    extends (H1 -> H1a, L2a -> L2a1), so a digit immediately after a
-    digit-ending clade denotes a *different* sibling clade, not a descendant:
-    "H1" must not swallow H10/H11/H13, nor "H3" swallow H31, nor "H5" swallow
-    H52. Letter-ending clades (L2a -> L2a1) keep digit continuation.
+    extends (H1 -> H1a, L2a -> L2a1), so a character of the SAME token type
+    immediately after the clade name denotes a *different* sibling clade, not a
+    descendant: "H1" must not swallow H10/H11/H13, nor "H3" swallow H31, nor
+    "H5" swallow H52; equally "H1a" must not swallow its siblings H1aa/H1ab
+    (whose parent is H1+16189, not H1a), nor "H3a" swallow H3aa.
+
+    PhyloTree also writes the node ancestral to X and Y as X'Y, so "H5'36" is
+    the PARENT of H5 and H36, not a member of H5; a quote continuation is
+    therefore rejected as well.
     """
     if hg == clade:
         return True
     if not hg.startswith(clade):
         return False
-    if clade[-1:].isdigit() and hg[len(clade):len(clade) + 1].isdigit():
+    nxt = hg[len(clade):len(clade) + 1]
+    if nxt == "'":
+        return False
+    last = clade[-1:]
+    if last.isdigit() and nxt.isdigit():
+        return False
+    if last.isalpha() and nxt.isalpha():
         return False
     return True
 
