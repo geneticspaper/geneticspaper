@@ -232,11 +232,25 @@ build_report <- function() {
 sprintf("Four maternal founder lineages -- K1a1b1a, K1a9, K2a2a, and N1b2 -- account for roughly %.0f%% of Ashkenazi Jewish mtDNA, but their geographic origin is disputed between a prehistoric European-assimilation model and a Near Eastern / Levantine-origin model. This report reimplements the Livni-Skorecki branching-process and founder-versus-host framework and combines it with phylogeographic rarefaction, non-Jewish rarity, ancient DNA, and a regularized origin synthesis over a deduplicated Mitotree/GenBank reference set.",
         sum(FOUNDERS$ashkenazi_pct)),
 "",
-sprintf("Five analyses favor a Near Eastern origin. The estimated absorbed host-lineage fraction places all four founders in the multi-copy founder tail rather than among absorbed singletons; the founders are rare among 27,651 non-Jews; Costa's \"solely European nesting\" argument weakens after equal-sample-size rarefaction; the K and N parent macro-clades have deep Near Eastern ancient-DNA context and the founder clades occur in medieval Jewish individuals; and the ridge-logistic synthesis places every founder above 0.5 for Near Eastern origin. Support is strongest for %s (%s) and most tentative for %s (%s), whose sister lineages remain Europe-richer at equal sample size.",
+sprintf("Five analyses favor a Near Eastern origin. The estimated absorbed host-lineage fraction places all four founders in the multi-copy founder tail rather than among absorbed singletons; the founders are rare among 27,651 non-Jews; Costa's \"solely European nesting\" argument weakens after equal-sample-size rarefaction; the K and N parent macro-clades have deep Near Eastern ancient-DNA context and the founder clades occur in medieval Jewish individuals; and the ridge-logistic synthesis places every founder above 0.5 for Near Eastern origin. Support is strongest for %s (%s) and most tentative for %s (%s)%s.",
         D_bp$founder[which.max(D_bp$post_mean_H2)],
         .fmt_post(max(D_bp$post_mean_H2)),
         D_bp$founder[which.min(D_bp$post_mean_H2)],
-        .fmt_post(min(D_bp$post_mean_H2))),
+        .fmt_post(min(D_bp$post_mean_H2)),
+        # State the parity caveat only for those founders whose interval
+        # actually admits it, so this cannot go stale if the ranking moves.
+        local({
+          crosses <- D_bp$founder[D_bp$post_lo < 0.5]
+          weakest <- D_bp$founder[which.min(D_bp$post_mean_H2)]
+          if (!length(crosses)) {
+            ". Every founder's 90% credible interval excludes parity"
+          } else if (identical(crosses, weakest)) {
+            ", which is also the only founder whose 90% credible interval still includes parity"
+          } else {
+            sprintf(". The 90%% credible interval still includes parity for %s",
+                    paste(crosses, collapse = ", "))
+          }
+        })),
 "",
 "## Data Set",
 "",
@@ -273,7 +287,7 @@ sprintf("Five analyses favor a Near Eastern origin. The estimated absorbed host-
 "",
 sprintf("YFull and FamilyTreeDNA Discover provide public context for the modeled haplogroups: alternative nomenclature, branch ages, public sample identifiers, country tags, ancient connections, and project counts. Public pages were compiled for %d lineages (K1a4a has none): YFull static pages were available for %d and FTDNA's public JSON endpoint for %d (U1b1a1 resolves through its public parent U1b1; A-a1b3a1 sits below macro-A on FTDNA). The public branch age adjusts the time channel only for lineages that also carry a Jewish or ancient anchor, so the European calibration lineages enter with no public-age bonus.", n_public, n_yfull_ok, n_ftdna_ok),
 "",
-"These data are not treated as an unbiased population-frequency sample: YFull and FTDNA are genealogical/testing databases with strong participation and project-enrollment effects. The model therefore does not use their tester country proportions as population frequencies. It does use the least sample-sensitive fields to make the time channel more realistic: supported aliases, public branch/TMRCA estimates, and public ancient-sample links. Very shallow public TMRCA estimates modestly penalize the time channel; mature public branch ages modestly strengthen it only when paired with an existing Jewish/ancient anchor.",
+"These data are not treated as an unbiased population-frequency sample: YFull and FTDNA are genealogical/testing databases with strong participation and project-enrollment effects. The model therefore does not use their tester country proportions as population frequencies. It does use the least sample-sensitive fields to make the time channel more realistic: supported aliases, public branch/TMRCA estimates, and public ancient-sample links. Very shallow public TMRCA estimates modestly penalize the time channel; mature public branch ages modestly strengthen it only when paired with an existing Jewish/ancient anchor. That anchor counts only pre-modern Jewish sites and studies (Erfurt/Waldman, Tàrrega/Roquetes, Chapelfield); the Sobibór series (Diepenbroek 2021) is excluded, since those individuals were born 1893-1923 and so cannot evidence a lineage's presence in the Jewish maternal pool before the modern era -- the same date restriction that governs the medieval-carrier count.",
 "",
 if (nrow(public_tab)) .md_table(public_tab) else "_Public enrichment table unavailable._",
 "",
@@ -390,7 +404,7 @@ sprintf("Leave-one-out validation classifies **%d of %d labeled lineages correct
 .md_table(D_bp),
 "",
 fig("D3_bayes_origin.png", "Origin synthesis: founders (red), European controls (blue), deep non-European controls (green); 90% credible intervals from the single fitted logistic on standardized data channels."),
-sprintf("All four founders sit above 0.5 (K1a1b1a %s, K1a9 %s, K2a2a %s, N1b2 %s, the last counted as a single lineage with its FTDNA-tree synonym N1b1b1). N1b2's interval is the widest because nesting is a negative contributor for it: at the N1b macro background its sister lineages stay Europe-richer at equal sample size, tempering its positive rarity and time channels. K2a2a rests on the narrowest base -- excluding its own carriers leaves a single Near Eastern sister sample within K2a, so its comparison climbs to K where sister richness is near parity, and its score comes mainly from rarity and medieval Jewish carriers. We report three decimal places because rounding would overstate certainty.",
+sprintf("All four founders sit above 0.5 (K1a1b1a %s, K1a9 %s, K2a2a %s, N1b2 %s, the last counted as a single lineage with its FTDNA-tree synonym N1b1b1). K2a2a's interval is by far the widest and is the only one that still includes parity. It rests on the narrowest base: excluding its own carriers leaves a single Near Eastern sister sample within K2a, so its comparison climbs to K where sister richness is near parity and the nesting channel contributes nothing, and it has no Jewish carrier dated before 1800 -- its only Jewish ancient records are 20th-century Sobibor victims, which cannot show the lineage was in the Jewish pool pre-modern, so the antiquity channel is negative as well. Its score rests on non-Jewish rarity almost alone and should be read as a single-channel result rather than convergent evidence. N1b2's nesting is also a negative contributor -- at the N1b macro background its sister lineages stay Europe-richer at equal sample size -- but its rarity and antiquity channels keep its interval clear of parity. We report three decimal places because rounding would overstate certainty.",
         .fmt_post(D_bp$post_mean_H2[D_bp$founder == "K1a1b1a"]),
         .fmt_post(D_bp$post_mean_H2[D_bp$founder == "K1a9"]),
         .fmt_post(D_bp$post_mean_H2[D_bp$founder == "K2a2a"]),
@@ -572,7 +586,7 @@ fig("C4_glpca_founders.png", "adegenet glPca of founder and parent-clade motifs.
 "",
 "## Discussion",
 "",
-"The five analyses converge despite testing different parts of the argument: finite-time lineage survival, non-Jewish rarity, sampling-controlled nesting, ancient and medieval occurrence, and multichannel classification. No analysis positively favors a European origin for any of the four founders. N1b2 remains the least certain because its equal-sample-size nesting leans European, but its rarity and antiquity signals keep its combined estimate above parity. K2a2a rests on the narrowest evidential base: once its own carriers are excluded there is a single Near Eastern sister sample within K2a, so its nesting is measured at K and near parity, and its score comes mainly from rarity and medieval Jewish carriers. The convergence matters more than any single statistic: a European-assimilation explanation must simultaneously account for their multi-copy tail position, near-absence among non-Jews, nesting after sampling control, deep Near Eastern K context, and medieval Jewish carriers.",
+"The five analyses converge despite testing different parts of the argument: finite-time lineage survival, non-Jewish rarity, sampling-controlled nesting, ancient and medieval occurrence, and multichannel classification. No analysis positively favors a European origin for any of the four founders. K2a2a is the least certain and the one founder whose credible interval still includes parity: once its own carriers are excluded there is a single Near Eastern sister sample within K2a, so its nesting is measured at K and near parity, and it has no pre-1800 Jewish carrier, leaving non-Jewish rarity as effectively its only positive channel. N1b2's equal-sample-size nesting also leans European, but its rarity and antiquity signals keep its combined estimate clear of parity. The convergence matters more than any single statistic: a European-assimilation explanation must simultaneously account for their multi-copy tail position, near-absence among non-Jews, nesting after sampling control, deep Near Eastern K context, and medieval Jewish carriers.",
 "",
 "The branching result should be interpreted as demographic discrimination rather than geographic proof by itself. Across Poisson, geometric, intermediate negative-binomial, constant-growth, and piecewise-growth specifications, a lineage that survives the bottleneck and rises to founder frequency is likely to appear in many copies, whereas recently absorbed host matrilines are concentrated among singletons. Geographic interpretation comes from combining that result with rarity, phylogeography, ancient DNA, and controls.",
 "",
@@ -606,7 +620,7 @@ sprintf("5. **Model-disfavored European reconciliation.** The Euro-Levantine pri
 "- **Reconstructed motifs.** The haplotype network / glPca use motifs rebuilt from Mitotree defining-mutation strings, not per-sample alignments.",
 "- **Model parameters.** The branching model inherits Livni-Skorecki's assumptions, but this report no longer substitutes Behar/Costa sample-table counts for Mitotree-derived empirical counts.",
 "- **Not a full phylogenetic dating paper.** TMRCA values are imported from Mitotree, and GenBank-query rows are metadata enrichments unless independently placed by Mitotree.",
-"- **Resolution, not direction.** These caveats bound the *precision* of the conclusion -- especially for N1b2, the most tentative founder, which would be sharpened by coding-region typing of ancient Near Eastern carriers and denser Levantine sampling -- but they do not supply positive evidence for the recent European-host origin model. mtDNA cannot fix an origin with autosomal-level certainty, yet under these data the Near Eastern origin of the Ashkenazi maternal founder core is the parsimonious and best-supported conclusion.",
+"- **Resolution, not direction.** These caveats bound the *precision* of the conclusion -- especially for K2a2a, the most tentative founder and the only one whose interval includes parity, which rests on non-Jewish rarity almost alone and would be sharpened most by a usable Near Eastern sister pool within K2a and by any pre-modern Jewish carrier, and for N1b2, which would be sharpened by coding-region typing of ancient Near Eastern carriers and denser Levantine sampling -- but they do not supply positive evidence for the recent European-host origin model. mtDNA cannot fix an origin with autosomal-level certainty, yet under these data the Near Eastern origin of the Ashkenazi maternal founder core is the parsimonious and best-supported conclusion.",
 "",
 "**Reproducibility.** A single analysis pipeline reproduces the reported results, tables, and figures end to end from the public Mitotree release, GenBank queries, and cited study data.",
 "",

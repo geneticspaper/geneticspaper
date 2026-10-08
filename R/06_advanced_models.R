@@ -73,8 +73,17 @@ public_haplogroup_context <- function(lineage_key) {
   # Bare Reich-lab sample-ID prefixes (I138.../I148...) are NOT used: they match
   # generic non-Jewish ancient samples (e.g. HV1a's I148xx) and would spuriously
   # anchor European lineages.
+  #
+  # The Sobibor series (Diepenbroek 2021) is deliberately EXCLUDED. Those
+  # individuals are Holocaust victims born 1893-1923, so like the parallel
+  # `medieval_jewish_carriers` channel -- which screens them out by date via
+  # MEDIEVAL_MAX_YEAR -- they are no evidence that a lineage was already in the
+  # Jewish maternal pool before the modern era, the only thing this anchor is
+  # meant to establish. This file has no per-code dates to filter on, so the
+  # study is dropped by name. Without this, K2a2a and HV1b2 received a mature
+  # anchor bonus whose entire basis was 20th-century samples.
   anchor_text <- paste(row$ftdna_ancient_codes, row$ftdna_ancient_studies, sep = ";")
-  jewish_anchor <- grepl("Waldman|Pallar|Tarrega|Roquetes|ROQ|Sobibor|Diepenbroek|Erfurt|Chapelfield",
+  jewish_anchor <- grepl("Waldman|Pallar|Tarrega|Roquetes|ROQ|Erfurt|Chapelfield",
                          anchor_text, ignore.case = TRUE)
 
   data.frame(

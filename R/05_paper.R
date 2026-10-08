@@ -285,10 +285,23 @@ build_paper <- function(compile = TRUE) {
   D_sch_ph <- D_sch_ph[!is.na(D_sch_ph$phase), , drop = FALSE]
 
   # Posterior convenience accessors (Bayesian origin synthesis, Module D).
-  pmean <- function(f) D_bp$post_mean_H2[D_bp$founder == f]
-  plo   <- function(f) D_bp$post_lo[D_bp$founder == f]
-  phi   <- function(f) D_bp$post_hi[D_bp$founder == f]
-  pfmt  <- function(f, col = "post_mean_H2") .fmt_post(D_bp[[col]][D_bp$founder == f])
+  # Fail loudly on an unknown key: a zero-length lookup here collapses the whole
+  # enclosing sprintf() to character(0) and silently deletes the paragraph.
+  pfmt  <- function(f, col = "post_mean_H2") {
+    v <- D_bp[[col]][D_bp$founder == f]
+    if (!length(v)) stop(sprintf("pfmt(): '%s' is not a founder in D_bp", f))
+    .fmt_post(v)
+  }
+  # Control posteriors live in the negative-control table, not D_bp (which holds
+  # the four founders only). Looking a control up via pfmt() silently yields
+  # character(0), which collapses the whole enclosing sprintf() to character(0)
+  # and drops the paragraph from the paper without any error -- which is exactly
+  # what happened to the graded-synthesis paragraph in the Discussion.
+  cfmt  <- function(f, col = "post_mean_H2") {
+    v <- D_nc[[col]][D_nc$lineage == f]
+    if (!length(v)) stop(sprintf("cfmt(): no control posterior for '%s'", f))
+    .fmt_post(v)
+  }
   a_eps_mt <- A_abs$absorbed_fraction_a_eps[A_abs$sample == "enriched_mitotree_modern"][1]
 
   # ---- preamble ----
@@ -349,20 +362,22 @@ build_paper <- function(compile = TRUE) {
       "maternal pool, though not direct K/N founder carriers. (v) A ridge-logistic origin synthesis",
       "on standardized data channels assigns every founder a posterior probability of Near",
       "Eastern origin above 0.5: the K1a founders most strongly (K1a1b1a %s, K1a9 %s), then",
-      "K2a2a (%s), with N1b2 the most moderate (%s), its Europe-leaning equal-$n$ nesting",
-      "tempering its rarity and antiquity signals.",
+      "N1b2 (%s), whose Europe-leaning equal-$n$ nesting tempers its rarity and antiquity",
+      "signals, with K2a2a the most moderate (%s) and the only founder whose 90\\%% credible",
+      "interval still includes parity -- it has no usable Near Eastern sister pool within K2a and",
+      "no Jewish carrier dated before 1800, so its score rests on non-Jewish rarity almost alone.",
       "Run across a literature-coded broader-lineage panel, the same synthesis reproduces the",
       "evaluable published-origin calls in both directions -- scoring high the frequent lineages",
       "Costa et al. (2013) classify as Near Eastern or ultimately Near Eastern (HV1b2, R0a, U7,",
       "U1) while placing the clean H7 and J1c controls on the European side and flagging",
       "H6a1a1a as ambiguous. We",
       "conclude that all four major founders are best explained by a Near Eastern origin, with",
-      "the strongest support for the K1a founders and the most tentative signal for N1b2;",
+      "the strongest support for the K1a founders and the most tentative signal for K2a2a;",
       "mtDNA cannot fix an origin with autosomal-level certainty, but under these data a recent",
       "European-host origin is disfavored for every founder."),
       sum(load_founders()$ashkenazi_pct),
       format(n_modern, big.mark = ","), a_eps_mt,
-      pfmt("K1a1b1a"), pfmt("K1a9"), pfmt("K2a2a"), pfmt("N1b2")),
+      pfmt("K1a1b1a"), pfmt("K1a9"), pfmt("N1b2"), pfmt("K2a2a")),
     "\\end{abstract}"
   )
 
@@ -555,7 +570,11 @@ build_paper <- function(compile = TRUE) {
       "sample-sensitive fields to make the time channel more realistic: supported aliases, public",
       "branch/TMRCA estimates and public ancient-sample links. Very shallow public TMRCA estimates modestly",
       "penalize the time channel; mature public branch ages modestly strengthen it only when paired",
-      "with an existing Jewish/ancient anchor. Table~\\ref{tab:public-enrichment} lists the",
+      "with an existing Jewish/ancient anchor. That anchor is restricted to pre-modern Jewish sites",
+      "and studies (Erfurt/Waldman, Tarrega/Roquetes/Pallares-Vina, Chapelfield): the Sobibor series",
+      "(Diepenbroek, 2021) is excluded, because those individuals were born 1893--1923 and so cannot",
+      "evidence a lineage's presence in the Jewish maternal pool before the modern era -- the same",
+      "date restriction applied to the medieval-carrier count. Table~\\ref{tab:public-enrichment} lists the",
       "public fields extracted for each modeled haplogroup.")),
     if (nrow(public_tab)) .tex_table(public_tab,
       "Public YFull/FTDNA enrichment for the modeled haplogroups. Calendar years are FTDNA public TMRCA means where exposed; YFull counts are public identifiers parsed from the MTree page.",
@@ -692,13 +711,17 @@ build_paper <- function(compile = TRUE) {
                 "Origin synthesis: founders (red), European controls (blue), deep non-European controls (green); 90\\% credible intervals from the fitted logistic on standardized data channels.",
                 "fig:d3"),
     .p(sprintf(paste(
-      "All four founders sit above 0.5: K1a1b1a %s, K1a9 %s, K2a2a %s and N1b2 %s. N1b2's",
-      "interval is the widest because the nesting channel is a negative contributor for it: at",
-      "the N1b macro background its sister lineages remain Europe-richer at equal $n$, which",
-      "tempers its positive rarity and time channels. K2a2a's sister pool in the Near East is a",
-      "single sample once its own carriers are excluded, so its comparison climbs to K, where",
-      "the sister richness is near parity; its score therefore rests mainly on rarity and",
-      "antiquity. (We report three decimals because rounding would overstate certainty.)"),
+      "All four founders sit above 0.5: K1a1b1a %s, K1a9 %s, K2a2a %s and N1b2 %s. K2a2a's",
+      "interval is by far the widest and is the only one of the four that still includes parity.",
+      "Its sister pool in the Near East is a single sample once its own carriers are excluded, so",
+      "its comparison climbs to K, where the sister richness is near parity and the nesting",
+      "channel contributes nothing; it also has no Jewish carrier dated before 1800, its only",
+      "Jewish ancient records being 20th-century Sobibor victims, so its antiquity channel is",
+      "negative. Its score therefore rests on non-Jewish rarity almost alone, and is best read as",
+      "a single-channel result rather than as convergent evidence. The nesting channel is a",
+      "negative contributor for N1b2 as well -- at the N1b macro background its sister lineages",
+      "remain Europe-richer at equal $n$ -- but its rarity and time channels keep its interval",
+      "clear of parity. (We report three decimals because rounding would overstate certainty.)"),
       pfmt("K1a1b1a"), pfmt("K1a9"), pfmt("K2a2a"), pfmt("N1b2"))),
     "\\subsection{Negative controls: European (absorbed) Ashkenazi lineages}",
     .p(paste(
@@ -1047,11 +1070,13 @@ build_paper <- function(compile = TRUE) {
       "sampling-controlled test of the nesting argument, an ancient-DNA record, a non-Jewish",
       "rarity benchmark, and a Bayesian synthesis -- yet none supports a European origin for any",
       "of the four founders, and every one either favors or is consistent with a Near Eastern",
-      "origin; N1b2 is the most tentative, its Europe-leaning equal-$n$ nesting tempering an",
-      "otherwise Near Eastern signal, but it too stays above parity. K2a2a rests on the narrowest",
+      "origin; N1b2's Europe-leaning equal-$n$ nesting tempers an otherwise Near Eastern signal,",
+      "but it stays clear of parity. K2a2a is the most tentative and rests on the narrowest",
       "evidential base: once its own carriers are excluded there is a single Near Eastern sister",
-      "sample within K2a, so its nesting is measured at K and near parity, and its score comes",
-      "mainly from rarity and medieval Jewish carriers. The convergence of",
+      "sample within K2a, so its nesting is measured at K and near parity, and it has no pre-1800",
+      "Jewish carrier, leaving non-Jewish rarity as effectively its only positive channel -- and",
+      "it is the one founder whose credible interval still admits parity.",
+      "The convergence of",
       "methodologically independent lines of evidence is itself the central result: it is",
       "difficult to construct a European-assimilation scenario that simultaneously reproduces the",
       "founder-tail position of all four lineages, their near-total absence among non-Jews, the",
@@ -1064,27 +1089,30 @@ build_paper <- function(compile = TRUE) {
     .p(sprintf(paste(
       "The origin synthesis makes the conclusion quantitative and graded. The K1a founders are",
       "supported strongly: K1a1b1a (posterior mean %s; 90\\%% credible interval %s--%s) and",
-      "K1a9 (%s; %s--%s) both have credible intervals that exclude parity. K2a2a (%s; %s--%s)",
-      "also clears parity, though on a narrower evidential base: excluding its own carriers",
-      "leaves a single Near Eastern sister sample within K2a, so its nesting is measured at K,",
-      "where sister richness is near parity, and its score rests mainly on non-Jewish rarity and",
-      "medieval Jewish carriers.",
-      "N1b2 -- scored as a single lineage together with its FTDNA-tree synonym N1b1b1 -- is the",
-      "most tentative of the four (%s; %s--%s): its posterior mean stays above 0.5 on the",
-      "strength of its rarity and time channels, but its wide interval still admits parity because",
-      "its equal-sample-size nesting in the N1b macro-clade leans European in this reference set on",
-      "a heavily weighted channel. The honest reading is",
-      "therefore a clear gradient: firm support for the K1a founders and K2a2a, and a positive if",
-      "more tentative signal for N1b2. Crucially, no",
+      "K1a9 (%s; %s--%s) both have credible intervals that exclude parity, as does",
+      "N1b2 -- scored as a single lineage together with its FTDNA-tree synonym N1b1b1 --",
+      "(%s; %s--%s), whose posterior mean holds up on the strength of its rarity and time",
+      "channels even though its equal-sample-size nesting in the N1b macro-clade leans European",
+      "in this reference set on a heavily weighted channel. K2a2a (%s; %s--%s) is the most",
+      "tentative of the four and the only one whose interval still admits parity, on a markedly",
+      "narrower evidential base: excluding its own",
+      "carriers leaves a single Near Eastern sister sample within K2a, so its nesting is measured",
+      "at K, where sister richness is near parity, and it has no Jewish carrier dated before 1800",
+      "(its Sobibor records are 20th-century and are not treated as pre-modern anchors). Its",
+      "score therefore rests on non-Jewish rarity almost alone, and its point estimate should be",
+      "read against that single-channel support rather than as convergent evidence.",
+      "The honest reading is",
+      "therefore a clear gradient: firm support for the K1a founders, a positive signal for N1b2,",
+      "and a directionally Near Eastern but parity-admitting result for K2a2a. Crucially, no",
       "founder favors H1. That this gradient is not an artifact of a model tuned to return H2 is",
       "shown by the negative controls: the same synthesis assigns the European Ashkenazi lineages",
       "V7a2c1b and U5a1f1a3 posteriors of only %s and %s --- below all four founders --- and by",
       "leave-one-out validation on the labeled panel (%d/%d correct)."),
-      pfmt("K1a1b1a"), plo("K1a1b1a"), phi("K1a1b1a"),
-      pfmt("K1a9"), plo("K1a9"), phi("K1a9"),
-      pfmt("K2a2a"), plo("K2a2a"), phi("K2a2a"),
-      pfmt("N1b2"), plo("N1b2"), phi("N1b2"),
-      pfmt("V7a2c1b"), pfmt("U5a1f1a3"),
+      pfmt("K1a1b1a"), pfmt("K1a1b1a", "post_lo"), pfmt("K1a1b1a", "post_hi"),
+      pfmt("K1a9"), pfmt("K1a9", "post_lo"), pfmt("K1a9", "post_hi"),
+      pfmt("N1b2"), pfmt("N1b2", "post_lo"), pfmt("N1b2", "post_hi"),
+      pfmt("K2a2a"), pfmt("K2a2a", "post_lo"), pfmt("K2a2a", "post_hi"),
+      cfmt("V7a2c1b"), cfmt("U5a1f1a3"),
       fc_loo_acc, fc_loo_n)),
     .p(sprintf(paste(
       "The branching model underpins this interpretation. Under realistic reproduction -- Poisson,",
@@ -1135,11 +1163,13 @@ build_paper <- function(compile = TRUE) {
       "the largest available maternal reference dataset, we find that all four major Ashkenazi mtDNA",
       "founders -- K1a1b1a, K1a9, K2a2a and N1b2 -- are best explained by a Near Eastern /",
       "Levantine origin. The support is strongest for the two K1a founders (K1a9 %s,",
-      "K1a1b1a %s, credible intervals excluding parity), then K2a2a (%s), and is positive",
-      "though most tentative for N1b2 (%s), whose Europe-leaning nesting tempers its rarity",
-      "and antiquity signals. No founder is better explained by a simple prehistoric",
+      "K1a1b1a %s, credible intervals excluding parity), then N1b2 (%s), whose Europe-leaning",
+      "nesting tempers its rarity and antiquity signals but leaves its interval clear of parity,",
+      "and is positive though most tentative for K2a2a (%s), the one founder whose interval still",
+      "includes parity and whose score rests on non-Jewish rarity almost alone.",
+      "No founder is better explained by a simple prehistoric",
       "European-host origin under the analyses performed here."),
-      pfmt("K1a9"), pfmt("K1a1b1a"), pfmt("K2a2a"), pfmt("N1b2"))),
+      pfmt("K1a9"), pfmt("K1a1b1a"), pfmt("N1b2"), pfmt("K2a2a"))),
     .p(paste(
       "These results support and extend the Livni--Skorecki (2025) and Behar et al. (2006)",
       "Near Eastern model relative to the Costa et al. (2013) European-assimilation model, and they",
