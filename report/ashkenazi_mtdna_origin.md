@@ -276,7 +276,7 @@ The Bayesian synthesis combines three **data-computed** evidence channels into o
 2. **Z-score** rarity, time (depth + carriers + public age), and nesting fraction across all scored lineages.
 3. **Fit a ridge-logistic model** to labeled controls only (European = 0; Near Eastern / non-European diaspora = 1). Founders are held out. Coefficient uncertainty is propagated by Laplace-approximation Monte Carlo. Leave-one-out validation on the labeled panel guards against overfitting.
 
-Leave-one-out validation classifies **18 of 21 labeled lineages correctly (86%)**. Fitted channel weights (Gaussian priors, integrated out):
+Leave-one-out validation classifies **19 of 21 labeled lineages correctly (90%)**. Fitted channel weights (Gaussian priors, integrated out):
 
 | channel | posterior weight |
 | --- | --- |
@@ -742,7 +742,7 @@ The objections below mistake individual sensitivity tests for standalone claims.
 No. The pipeline fits three standardized predictors jointly within a single Bayesian synthesis model using ridge priors. Their correlation is directly measured (`outputs/tables/G_channel_dependence.csv`) and regularized (effective dimensionality 2.74 of 3), preventing double-counting. Independent validation checks -- including ancient DNA falsification, Galton-Watson branching, equal-$n$ rarefaction, and negative controls -- are reported as separate robustness tests, not multiplied Bayes factors.
 
 ### 2. Do the model scores reflect true geographic origin probabilities?
-The scores quantify conditional evidence for Near Eastern vs. European origin under a data-driven synthesis; they are not calibrated geographic probabilities. The model gets 18 of 21 labeled controls right out of sample (LOO validation; `outputs/tables/D_fitted_loo.csv`). Non-European controls check the classifier's ability to identify non-European signatures, while the Near Eastern assignment for the Ashkenazi founders is independently anchored by ancient Near Eastern PPNB K lineages, medieval Jewish mitogenomes (Erfurt, Tarrega, Norwich), and nesting analysis.
+The scores quantify conditional evidence for Near Eastern vs. European origin under a data-driven synthesis; they are not calibrated geographic probabilities. The model gets 19 of 21 labeled controls right out of sample (LOO validation; `outputs/tables/D_fitted_loo.csv`). Non-European controls check the classifier's ability to identify non-European signatures, while the Near Eastern assignment for the Ashkenazi founders is independently anchored by ancient Near Eastern PPNB K lineages, medieval Jewish mitogenomes (Erfurt, Tarrega, Norwich), and nesting analysis.
 
 ### 3. Is the training set circular?
 No. Founder lineages are held out of training and are never used to fit the model. Key channels -- the ancient-DNA falsification audits, non-Jewish European frequencies from 1000 Genomes, and the Galton-Watson branching calculations -- are label-free and derived directly from empirical sequence data. LOO cross-validation checks that the classifier generalizes beyond individual controls.
@@ -763,7 +763,7 @@ They do not fix a birthplace on their own, but they do establish antiquity. Medi
 It removes the sampling artifact the raw-density argument rests on: higher European sequence counts largely reflect European sampling intensity. After controlling for sample size, K1a is Near-East-richer, while K2a and N1b remain Europe-richer at equal $n$ -- the nesting channel is in fact a negative contributor for N1b2. The rarefaction result is therefore evidence against a blanket 'solely European nesting' claim, not positive nesting support for all four founders.
 
 ### 9. Is the branching process result sensitive to demographic assumptions?
-It is robust across the tested demographic parameters, offspring distributions (Poisson, geometric, negative binomial) and growth schedules (constant vs. piecewise historical growth). The figure usually quoted here is narrower than it sounds: the ~0.49% baseline (0.02--3.05% across the sensitivity grid) is the probability that the Euro-Levantine *private-mutation* scenario yields three or more of the four majors -- not an omnibus probability for European host absorption.
+It is robust across the tested demographic parameters, offspring distributions (Poisson, geometric, negative binomial) and growth schedules (constant vs. piecewise historical growth). The figure usually quoted here is narrower than it sounds: the ~1.51% baseline (0.07--24.26% across the sensitivity grid, and 5.30% under the Dirichlet sigma_major rather than the assumed 0.03) is the probability that the Euro-Levantine *private-mutation* scenario yields three or more of the four majors -- not an omnibus probability for European host absorption.
 
 ### 10. Are database biases or reconstructed motifs inflating the results?
 The pipeline relies on curated population baselines (such as 1000 Genomes EUR) and published study cohorts rather than commercial participation metrics. Network topology and glPCA are used for visual confirmation only; removing them leaves the frequency, branching, ancient-DNA, rarefaction and synthesis results unchanged.

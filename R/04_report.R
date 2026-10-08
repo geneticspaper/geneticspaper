@@ -76,6 +76,8 @@ build_report <- function() {
   p_ge3 <- as.numeric(elv[["prob_ge3_major"]]) * 100
   els_lo <- if (nrow(A_els)) 100 * min(A_els$prob_ge3_major) else p_ge3
   els_hi <- if (nrow(A_els)) 100 * max(A_els$prob_ge3_major) else p_ge3
+  # Same quantity under the Dirichlet sigma_major rather than the assumed 0.03.
+  p_ge3_dir <- as.numeric(elv[["prob_ge3_major_dirichlet"]]) * 100
   fs <- frequency_sources()
   if (nrow(G_qp)) {
     G_qp$`p-value` <- as.numeric(G_qp$`p-value`)
@@ -676,7 +678,7 @@ sprintf("The scores quantify conditional evidence for Near Eastern vs. European 
 "It removes the sampling artifact the raw-density argument rests on: higher European sequence counts largely reflect European sampling intensity. After controlling for sample size, K1a is Near-East-richer, while K2a and N1b remain Europe-richer at equal $n$ -- the nesting channel is in fact a negative contributor for N1b2. The rarefaction result is therefore evidence against a blanket 'solely European nesting' claim, not positive nesting support for all four founders.",
 "",
 "### 9. Is the branching process result sensitive to demographic assumptions?",
-"It is robust across the tested demographic parameters, offspring distributions (Poisson, geometric, negative binomial) and growth schedules (constant vs. piecewise historical growth). The figure usually quoted here is narrower than it sounds: the ~0.49% baseline (0.02--3.05% across the sensitivity grid) is the probability that the Euro-Levantine *private-mutation* scenario yields three or more of the four majors -- not an omnibus probability for European host absorption.",
+sprintf("It is robust across the tested demographic parameters, offspring distributions (Poisson, geometric, negative binomial) and growth schedules (constant vs. piecewise historical growth). The figure usually quoted here is narrower than it sounds: the ~%.2f%% baseline (%.2f--%.2f%% across the sensitivity grid, and %.2f%% under the Dirichlet sigma_major rather than the assumed 0.03) is the probability that the Euro-Levantine *private-mutation* scenario yields three or more of the four majors -- not an omnibus probability for European host absorption.", p_ge3, els_lo, els_hi, p_ge3_dir),
 "",
 "### 10. Are database biases or reconstructed motifs inflating the results?",
 "The pipeline relies on curated population baselines (such as 1000 Genomes EUR) and published study cohorts rather than commercial participation metrics. Network topology and glPCA are used for visual confirmation only; removing them leaves the frequency, branching, ancient-DNA, rarefaction and synthesis results unchanged.",

@@ -16,7 +16,7 @@
 "W","panel",0,0.237,0,TRUE
 "I","panel",0,0.392,0,TRUE
 "U4","panel",0,0.101,0,TRUE
-"H1","panel",0,0.681,1,FALSE
+"H1","panel",0,0.005,0,TRUE
 "H3","panel",0,0.021,0,TRUE
 "H5","panel",0,0.062,0,TRUE
 "HV1a","panel",1,0.793,1,TRUE

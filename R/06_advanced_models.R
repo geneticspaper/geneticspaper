@@ -291,7 +291,22 @@ bayesian_origin_inputs <- function(founders = names(FOUNDER_ROOT)) {
   if (n < 2L) return(rep(0, length(x)))
   fr <- vapply(x, function(v) if (is.na(v)) NA_real_ else sum(refok <= v) / (n + 1),
                numeric(1))
-  z <- stats::qnorm(fr); z[!is.finite(z)] <- 0; z
+  # A value inside `ref` scores in [1/(n+1), n/(n+1)]; a value that lies BELOW
+  # every reference entry scores 0, whose qnorm is -Inf. Clamping that to 0 (as
+  # this once did) maps the most extreme observation to the exact CENTRE of the
+  # channel -- "off the scale" became "no information". It only bit the minimum,
+  # since the maximum yields n/(n+1) < 1 and stays finite, so the asymmetry was
+  # invisible in-sample and surfaced only under leave-one-out, where the held-out
+  # row is absent from `ref`: H1, the most common lineage among non-Jews and the
+  # strongest European signal in the panel, had its dominant channel zeroed and
+  # was then misclassified by its own medieval-carrier count.
+  # Out-of-range values are therefore pinned to the end of the reference scale,
+  # not to its middle. In-sample scores are unaffected (they already lie inside
+  # these bounds), so this changes only the out-of-sample path.
+  fr <- pmin(pmax(fr, 1 / (n + 1)), n / (n + 1))
+  z <- stats::qnorm(fr)
+  z[is.na(z)] <- 0            # genuinely missing input -> neutral
+  z
 }
 .rank_normal <- function(x) .rank_normal_by(x, x)
 
